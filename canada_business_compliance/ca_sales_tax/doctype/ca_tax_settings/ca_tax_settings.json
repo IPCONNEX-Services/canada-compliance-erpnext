@@ -1,0 +1,108 @@
+{
+ "actions": [],
+ "creation": "2026-04-17 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "tax_accounts_section",
+  "gst_account",
+  "hst_account",
+  "col_break_1",
+  "pst_account",
+  "qst_account",
+  "apply_to_section",
+  "apply_to_sales_order",
+  "apply_to_quotation",
+  "apply_to_sales_invoice"
+ ],
+ "fields": [
+  {
+   "fieldname": "tax_accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Accounts"
+  },
+  {
+   "fieldname": "gst_account",
+   "fieldtype": "Link",
+   "label": "GST Account",
+   "options": "Account",
+   "description": "Account for Goods and Services Tax (5%). Used in AB, BC, MB, NT, NU, QC, SK, YT."
+  },
+  {
+   "fieldname": "hst_account",
+   "fieldtype": "Link",
+   "label": "HST Account",
+   "options": "Account",
+   "description": "Account for Harmonized Sales Tax. Used in NB (15%), NL (15%), NS (15%), ON (13%), PE (15%)."
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pst_account",
+   "fieldtype": "Link",
+   "label": "PST / RST Account",
+   "options": "Account",
+   "description": "Account for Provincial Sales Tax. Used in BC (7%), MB (7%), SK (6%)."
+  },
+  {
+   "fieldname": "qst_account",
+   "fieldtype": "Link",
+   "label": "QST Account",
+   "options": "Account",
+   "description": "Account for Quebec Sales Tax (9.975%). Used in QC only."
+  },
+  {
+   "fieldname": "apply_to_section",
+   "fieldtype": "Section Break",
+   "label": "Auto-Apply To"
+  },
+  {
+   "default": "1",
+   "fieldname": "apply_to_sales_order",
+   "fieldtype": "Check",
+   "label": "Sales Order"
+  },
+  {
+   "default": "1",
+   "fieldname": "apply_to_quotation",
+   "fieldtype": "Check",
+   "label": "Quotation"
+  },
+  {
+   "default": "1",
+   "fieldname": "apply_to_sales_invoice",
+   "fieldtype": "Check",
+   "label": "Sales Invoice"
+  }
+ ],
+ "in_create": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-04-17 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "CA Sales Tax",
+ "name": "CA Tax Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 0,
+ "restrict_to_domain": "",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 0
+}
