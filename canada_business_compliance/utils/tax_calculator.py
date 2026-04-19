@@ -47,24 +47,29 @@ def get_tax_rows(province_code: str) -> list:
 @frappe.whitelist()
 def get_province_taxes(province_code):
     """
-    Whitelisted API — called by client JS.
-    Returns tax rows with account_head populated from CA Tax Settings.
+    Legacy API — kept for backward compatibility.
+    Resolves by province code only (no address fallback, no exemption checks).
+    Respects the small supplier toggle from CA Tax Settings.
+    For full resolution, call resolve_taxes() directly.
     """
+    settings = frappe.get_single("CA Tax Settings")
+    if settings.is_small_supplier:
+        return []
+
     rows = get_tax_rows(province_code)
     if not rows:
         return []
 
-    settings = frappe.get_single("CA Tax Settings")
     account_map = {
-        "gst": settings.gst_account,
-        "hst": settings.hst_account,
-        "pst": settings.pst_account,
-        "qst": settings.qst_account,
+        "gst": settings.gst_account or "",
+        "hst": settings.hst_account or "",
+        "pst": settings.pst_account or "",
+        "qst": settings.qst_account or "",
     }
 
     result = []
     for row in rows:
-        account = account_map.get(row["tax_key"]) or ""
+        account = account_map.get(row["tax_key"], "")
         result.append({
             "charge_type": row["charge_type"],
             "description": row["description"],
