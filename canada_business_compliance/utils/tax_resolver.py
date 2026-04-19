@@ -18,12 +18,12 @@ def province_from_address(address_name: str) -> Optional[str]:
 def is_item_zero_rated(item_code: str) -> bool:
     """
     Return True if item is zero-rated for GST/HST.
-    Item-level zero_rated_gst wins over Item Group. If neither is set, returns False.
+    If item has zero_rated_gst = 1, return True immediately.
+    Otherwise fall back to Item Group setting.
     """
     item = frappe.get_cached_doc("Item", item_code)
-    item_value = item.get("zero_rated_gst")
-    if item_value is not None:
-        return bool(item_value)
+    if item.get("zero_rated_gst"):
+        return True
     if item.item_group:
         group = frappe.get_cached_doc("Item Group", item.item_group)
         return bool(group.get("zero_rated_gst"))

@@ -39,10 +39,23 @@ class TestIsItemZeroRated:
 
     def test_returns_false_when_item_level_unset(self, frappe):
         item = MagicMock()
-        item.get.return_value = 0
-        frappe.get_cached_doc.return_value = item
+        item.get.return_value = 0   # unchecked at item level
+        item.item_group = "Standard"
+        group = MagicMock()
+        group.get.return_value = 0  # also unchecked at group level
+        frappe.get_cached_doc.side_effect = [item, group]
         from canada_business_compliance.utils.tax_resolver import is_item_zero_rated
         assert is_item_zero_rated("ITEM-001") is False
+
+    def test_falls_back_to_group_when_item_unchecked(self, frappe):
+        item = MagicMock()
+        item.get.return_value = 0   # item explicitly unchecked
+        item.item_group = "Groceries"
+        group = MagicMock()
+        group.get.return_value = 1  # group is zero-rated
+        frappe.get_cached_doc.side_effect = [item, group]
+        from canada_business_compliance.utils.tax_resolver import is_item_zero_rated
+        assert is_item_zero_rated("ITEM-001") is True
 
     def test_falls_back_to_item_group(self, frappe):
         item = MagicMock()

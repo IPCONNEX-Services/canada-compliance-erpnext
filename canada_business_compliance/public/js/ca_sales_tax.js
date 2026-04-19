@@ -66,6 +66,7 @@
 
     Object.entries(ADDRESS_TRIGGERS).forEach(([doctype, addressFields]) => {
         const handlers = {
+            customer: resolve_debounced,
             // items table: re-resolve when items are added, removed, or item_code changes
             items_add: resolve_debounced,
             items_remove: resolve_debounced,
