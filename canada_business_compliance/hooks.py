@@ -69,3 +69,7 @@ custom_fields = {
         },
     ],
 }
+
+fixtures = [
+    {"dt": "Print Format", "filters": [["name", "=", "CA Tax Invoice"]]},
+]
