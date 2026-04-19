@@ -5,18 +5,35 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "is_small_supplier",
+  "small_supplier_note",
   "tax_accounts_section",
   "gst_account",
   "hst_account",
   "col_break_1",
   "pst_account",
   "qst_account",
+  "registration_section",
+  "gst_registration_number",
+  "qst_registration_number",
   "apply_to_section",
   "apply_to_sales_order",
   "apply_to_quotation",
   "apply_to_sales_invoice"
  ],
  "fields": [
+  {
+   "fieldname": "is_small_supplier",
+   "fieldtype": "Check",
+   "label": "Small Supplier (Annual taxable supplies under $30,000 CAD)",
+   "description": "When enabled, no GST/HST will be applied to any document. Required if not registered for GST/HST."
+  },
+  {
+   "fieldname": "small_supplier_note",
+   "fieldtype": "HTML",
+   "options": "<div class='alert alert-warning' style='margin:4px 0 8px'>Small Supplier mode is ON — no Canadian tax will be injected on any document.</div>",
+   "depends_on": "eval:doc.is_small_supplier"
+  },
   {
    "fieldname": "tax_accounts_section",
    "fieldtype": "Section Break",
@@ -53,6 +70,25 @@
    "label": "QST Account",
    "options": "Account",
    "description": "Account for Quebec Sales Tax (9.975%). Used in QC only."
+  },
+  {
+   "fieldname": "registration_section",
+   "fieldtype": "Section Break",
+   "label": "Company Registration Numbers"
+  },
+  {
+   "fieldname": "gst_registration_number",
+   "fieldtype": "Data",
+   "label": "GST/HST Registration No.",
+   "description": "Format: 123456789 RT0001 — printed on CA Tax Invoice.",
+   "placeholder": "123456789 RT0001"
+  },
+  {
+   "fieldname": "qst_registration_number",
+   "fieldtype": "Data",
+   "label": "QST Registration No.",
+   "description": "Format: 1234567890 TQ0001 — printed on CA Tax Invoice when operating in QC.",
+   "placeholder": "1234567890 TQ0001"
   },
   {
    "fieldname": "apply_to_section",
