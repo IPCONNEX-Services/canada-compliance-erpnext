@@ -7,10 +7,10 @@ def _passthrough_whitelist(*args, **kwargs):
     """Make frappe.whitelist() act as a no-op decorator."""
     def decorator(fn):
         return fn
-    # Called as @frappe.whitelist() with no args — return decorator
     if len(args) == 1 and callable(args[0]):
-        # Called as @frappe.whitelist (no parentheses)
+        # Called as @frappe.whitelist (no parentheses) — args[0] is the function
         return args[0]
+    # Called as @frappe.whitelist() or @frappe.whitelist(methods=[...]) — return decorator
     return decorator
 
 
