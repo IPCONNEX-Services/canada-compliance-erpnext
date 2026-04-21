@@ -37,4 +37,4 @@ def set_customer_territory(doc, method=None):
     state = frappe.db.get_value("Address", address_name, "state") or ""
     territory = province_to_territory(state)
     if territory and doc.territory != territory:
-        frappe.db.set_value("Customer", doc.name, "territory", territory)
+        doc.db_set("territory", territory, update_modified=False)

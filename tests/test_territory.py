@@ -73,7 +73,7 @@ def test_set_customer_territory_sets_territory_from_primary_address(frappe):
 
     set_customer_territory(doc)
 
-    frappe.db.set_value.assert_called_once_with("Customer", "CUST-001", "territory", "Ontario")
+    doc.db_set.assert_called_once_with("territory", "Ontario", update_modified=False)
 
 
 def test_set_customer_territory_skips_when_already_correct(frappe):
@@ -97,7 +97,7 @@ def test_set_customer_territory_skips_when_already_correct(frappe):
 
     set_customer_territory(doc)
 
-    frappe.db.set_value.assert_not_called()
+    doc.db_set.assert_not_called()
 
 
 def test_set_customer_territory_no_address(frappe):
@@ -111,7 +111,7 @@ def test_set_customer_territory_no_address(frappe):
 
     set_customer_territory(doc)
 
-    frappe.db.set_value.assert_not_called()
+    doc.db_set.assert_not_called()
 
 
 def test_set_customer_territory_unknown_province(frappe):
@@ -135,4 +135,4 @@ def test_set_customer_territory_unknown_province(frappe):
 
     set_customer_territory(doc)
 
-    frappe.db.set_value.assert_not_called()
+    doc.db_set.assert_not_called()
