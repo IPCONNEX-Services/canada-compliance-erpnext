@@ -19,7 +19,9 @@
   "apply_to_section",
   "apply_to_sales_order",
   "apply_to_quotation",
-  "apply_to_sales_invoice"
+  "apply_to_sales_invoice",
+  "tax_rules_section",
+  "use_tax_rules"
  ],
  "fields": [
   {
@@ -112,6 +114,18 @@
    "fieldname": "apply_to_sales_invoice",
    "fieldtype": "Check",
    "label": "Sales Invoice"
+  },
+  {
+   "fieldname": "tax_rules_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Rules"
+  },
+  {
+   "default": "1",
+   "fieldname": "use_tax_rules",
+   "fieldtype": "Check",
+   "label": "Use Tax Rules",
+   "description": "Enable ERPNext Tax Rules for automatic Canadian tax. Uncheck to disable all CA Tax Rules and fill taxes manually."
   }
  ],
  "in_create": 1,
