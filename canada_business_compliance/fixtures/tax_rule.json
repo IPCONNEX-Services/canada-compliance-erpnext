@@ -1,0 +1,132 @@
+[
+  {
+    "doctype": "Tax Rule",
+    "name": "CA Alberta",
+    "title": "CA Alberta",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA GST Only",
+    "territory": "Alberta",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA Northwest Territories",
+    "title": "CA Northwest Territories",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA GST Only",
+    "territory": "Northwest Territories",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA Nunavut",
+    "title": "CA Nunavut",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA GST Only",
+    "territory": "Nunavut",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA Yukon",
+    "title": "CA Yukon",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA GST Only",
+    "territory": "Yukon",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA Ontario",
+    "title": "CA Ontario",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA HST 13%",
+    "territory": "Ontario",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA New Brunswick",
+    "title": "CA New Brunswick",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA HST 15%",
+    "territory": "New Brunswick",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA Newfoundland and Labrador",
+    "title": "CA Newfoundland and Labrador",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA HST 15%",
+    "territory": "Newfoundland and Labrador",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA Nova Scotia",
+    "title": "CA Nova Scotia",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA HST 15%",
+    "territory": "Nova Scotia",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA Prince Edward Island",
+    "title": "CA Prince Edward Island",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA HST 15%",
+    "territory": "Prince Edward Island",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA British Columbia",
+    "title": "CA British Columbia",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA GST + PST 7%",
+    "territory": "British Columbia",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA Manitoba",
+    "title": "CA Manitoba",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA GST + PST 7%",
+    "territory": "Manitoba",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA Saskatchewan",
+    "title": "CA Saskatchewan",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA GST + PST 6%",
+    "territory": "Saskatchewan",
+    "priority": 1,
+    "disabled": 0
+  },
+  {
+    "doctype": "Tax Rule",
+    "name": "CA Quebec",
+    "title": "CA Quebec",
+    "tax_type": "Sales",
+    "sales_tax_template": "CA GST + QST",
+    "territory": "Quebec",
+    "priority": 1,
+    "disabled": 0
+  }
+]
