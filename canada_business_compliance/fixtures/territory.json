@@ -1,0 +1,93 @@
+[
+  {
+    "doctype": "Territory",
+    "name": "Alberta",
+    "territory_name": "Alberta",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "British Columbia",
+    "territory_name": "British Columbia",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "Manitoba",
+    "territory_name": "Manitoba",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "New Brunswick",
+    "territory_name": "New Brunswick",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "Newfoundland and Labrador",
+    "territory_name": "Newfoundland and Labrador",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "Northwest Territories",
+    "territory_name": "Northwest Territories",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "Nova Scotia",
+    "territory_name": "Nova Scotia",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "Nunavut",
+    "territory_name": "Nunavut",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "Ontario",
+    "territory_name": "Ontario",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "Prince Edward Island",
+    "territory_name": "Prince Edward Island",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "Quebec",
+    "territory_name": "Quebec",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "Saskatchewan",
+    "territory_name": "Saskatchewan",
+    "parent_territory": "Canada",
+    "is_group": 0
+  },
+  {
+    "doctype": "Territory",
+    "name": "Yukon",
+    "territory_name": "Yukon",
+    "parent_territory": "Canada",
+    "is_group": 0
+  }
+]
