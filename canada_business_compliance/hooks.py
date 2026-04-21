@@ -12,6 +12,13 @@ doctype_js = {
     "Sales Invoice": "canada_business_compliance/public/js/ca_sales_tax.js",
 }
 
+doc_events = {
+    "Customer": {
+        "after_insert": "canada_business_compliance.utils.territory.set_customer_territory",
+        "on_update": "canada_business_compliance.utils.territory.set_customer_territory",
+    }
+}
+
 custom_fields = {
     "Customer": [
         {
@@ -72,4 +79,7 @@ custom_fields = {
 
 fixtures = [
     {"dt": "Print Format", "filters": [["name", "=", "CA Tax Invoice"]]},
+    {"dt": "Territory", "filters": [["parent_territory", "=", "Canada"]]},
+    {"dt": "Sales Taxes and Charges Template", "filters": [["name", "like", "CA %"]]},
+    {"dt": "Tax Rule", "filters": [["name", "like", "CA %"]]},
 ]
