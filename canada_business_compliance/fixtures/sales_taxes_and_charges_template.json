@@ -1,0 +1,113 @@
+[
+  {
+    "doctype": "Sales Taxes and Charges Template",
+    "name": "CA GST Only",
+    "title": "CA GST Only",
+    "is_default": 0,
+    "taxes": [
+      {
+        "doctype": "Sales Taxes and Charges",
+        "charge_type": "On Net Total",
+        "account_head": "",
+        "description": "GST 5%",
+        "rate": 5.0
+      }
+    ]
+  },
+  {
+    "doctype": "Sales Taxes and Charges Template",
+    "name": "CA HST 13%",
+    "title": "CA HST 13%",
+    "is_default": 0,
+    "taxes": [
+      {
+        "doctype": "Sales Taxes and Charges",
+        "charge_type": "On Net Total",
+        "account_head": "",
+        "description": "HST 13%",
+        "rate": 13.0
+      }
+    ]
+  },
+  {
+    "doctype": "Sales Taxes and Charges Template",
+    "name": "CA HST 15%",
+    "title": "CA HST 15%",
+    "is_default": 0,
+    "taxes": [
+      {
+        "doctype": "Sales Taxes and Charges",
+        "charge_type": "On Net Total",
+        "account_head": "",
+        "description": "HST 15%",
+        "rate": 15.0
+      }
+    ]
+  },
+  {
+    "doctype": "Sales Taxes and Charges Template",
+    "name": "CA GST + PST 7%",
+    "title": "CA GST + PST 7%",
+    "is_default": 0,
+    "taxes": [
+      {
+        "doctype": "Sales Taxes and Charges",
+        "charge_type": "On Net Total",
+        "account_head": "",
+        "description": "GST 5%",
+        "rate": 5.0
+      },
+      {
+        "doctype": "Sales Taxes and Charges",
+        "charge_type": "On Net Total",
+        "account_head": "",
+        "description": "PST 7%",
+        "rate": 7.0
+      }
+    ]
+  },
+  {
+    "doctype": "Sales Taxes and Charges Template",
+    "name": "CA GST + PST 6%",
+    "title": "CA GST + PST 6%",
+    "is_default": 0,
+    "taxes": [
+      {
+        "doctype": "Sales Taxes and Charges",
+        "charge_type": "On Net Total",
+        "account_head": "",
+        "description": "GST 5%",
+        "rate": 5.0
+      },
+      {
+        "doctype": "Sales Taxes and Charges",
+        "charge_type": "On Net Total",
+        "account_head": "",
+        "description": "PST 6%",
+        "rate": 6.0
+      }
+    ]
+  },
+  {
+    "doctype": "Sales Taxes and Charges Template",
+    "name": "CA GST + QST",
+    "title": "CA GST + QST",
+    "is_default": 0,
+    "taxes": [
+      {
+        "doctype": "Sales Taxes and Charges",
+        "charge_type": "On Net Total",
+        "account_head": "",
+        "description": "GST 5%",
+        "rate": 5.0
+      },
+      {
+        "doctype": "Sales Taxes and Charges",
+        "charge_type": "On Net Total",
+        "account_head": "",
+        "description": "QST 9.975%",
+        "rate": 9.975
+      }
+    ]
+  }
+]
