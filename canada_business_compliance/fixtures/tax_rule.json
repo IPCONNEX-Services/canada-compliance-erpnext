@@ -1,131 +1,105 @@
 [
   {
     "doctype": "Tax Rule",
-    "name": "CA Alberta",
-    "title": "CA Alberta",
     "tax_type": "Sales",
     "sales_tax_template": "CA GST Only",
-    "territory": "Alberta",
+    "shipping_state": "AB",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA Northwest Territories",
-    "title": "CA Northwest Territories",
     "tax_type": "Sales",
     "sales_tax_template": "CA GST Only",
-    "territory": "Northwest Territories",
+    "shipping_state": "NT",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA Nunavut",
-    "title": "CA Nunavut",
     "tax_type": "Sales",
     "sales_tax_template": "CA GST Only",
-    "territory": "Nunavut",
+    "shipping_state": "NU",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA Yukon",
-    "title": "CA Yukon",
     "tax_type": "Sales",
     "sales_tax_template": "CA GST Only",
-    "territory": "Yukon",
+    "shipping_state": "YT",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA Ontario",
-    "title": "CA Ontario",
     "tax_type": "Sales",
     "sales_tax_template": "CA HST 13%",
-    "territory": "Ontario",
+    "shipping_state": "ON",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA New Brunswick",
-    "title": "CA New Brunswick",
     "tax_type": "Sales",
     "sales_tax_template": "CA HST 15%",
-    "territory": "New Brunswick",
+    "shipping_state": "NB",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA Newfoundland and Labrador",
-    "title": "CA Newfoundland and Labrador",
     "tax_type": "Sales",
     "sales_tax_template": "CA HST 15%",
-    "territory": "Newfoundland and Labrador",
+    "shipping_state": "NL",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA Nova Scotia",
-    "title": "CA Nova Scotia",
     "tax_type": "Sales",
     "sales_tax_template": "CA HST 15%",
-    "territory": "Nova Scotia",
+    "shipping_state": "NS",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA Prince Edward Island",
-    "title": "CA Prince Edward Island",
     "tax_type": "Sales",
     "sales_tax_template": "CA HST 15%",
-    "territory": "Prince Edward Island",
+    "shipping_state": "PE",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA British Columbia",
-    "title": "CA British Columbia",
     "tax_type": "Sales",
     "sales_tax_template": "CA GST + PST 7%",
-    "territory": "British Columbia",
+    "shipping_state": "BC",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA Manitoba",
-    "title": "CA Manitoba",
     "tax_type": "Sales",
     "sales_tax_template": "CA GST + PST 7%",
-    "territory": "Manitoba",
+    "shipping_state": "MB",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA Saskatchewan",
-    "title": "CA Saskatchewan",
     "tax_type": "Sales",
     "sales_tax_template": "CA GST + PST 6%",
-    "territory": "Saskatchewan",
+    "shipping_state": "SK",
     "priority": 1,
     "disabled": 0
   },
   {
     "doctype": "Tax Rule",
-    "name": "CA Quebec",
-    "title": "CA Quebec",
     "tax_type": "Sales",
     "sales_tax_template": "CA GST + QST",
-    "territory": "Quebec",
+    "shipping_state": "QC",
     "priority": 1,
     "disabled": 0
   }
