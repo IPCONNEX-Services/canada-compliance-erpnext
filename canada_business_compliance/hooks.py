@@ -10,6 +10,7 @@ doctype_js = {
     "Sales Order":   "canada_business_compliance/public/js/ca_sales_tax.js",
     "Quotation":     "canada_business_compliance/public/js/ca_sales_tax.js",
     "Sales Invoice": "canada_business_compliance/public/js/ca_sales_tax.js",
+    "Address":       "canada_business_compliance/public/js/ca_address.js",
 }
 
 doc_events = {
@@ -73,6 +74,42 @@ custom_fields = {
             "label": "Zero-rated (GST/HST)",
             "description": "Overrides Item Group setting. Leave unchecked to inherit from Item Group.",
             "insert_after": "item_group",
+        },
+    ],
+    "Sales Order Item": [
+        {
+            "fieldname": "zero_rated_gst",
+            "fieldtype": "Check",
+            "label": "Zero-rated",
+            "fetch_from": "item_code.zero_rated_gst",
+            "fetch_if_empty": 0,
+            "read_only": 1,
+            "insert_after": "item_code",
+            "hidden": 1,
+        },
+    ],
+    "Sales Invoice Item": [
+        {
+            "fieldname": "zero_rated_gst",
+            "fieldtype": "Check",
+            "label": "Zero-rated",
+            "fetch_from": "item_code.zero_rated_gst",
+            "fetch_if_empty": 0,
+            "read_only": 1,
+            "insert_after": "item_code",
+            "hidden": 1,
+        },
+    ],
+    "Quotation Item": [
+        {
+            "fieldname": "zero_rated_gst",
+            "fieldtype": "Check",
+            "label": "Zero-rated",
+            "fetch_from": "item_code.zero_rated_gst",
+            "fetch_if_empty": 0,
+            "read_only": 1,
+            "insert_after": "item_code",
+            "hidden": 1,
         },
     ],
 }
