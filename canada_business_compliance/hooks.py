@@ -17,7 +17,13 @@ doc_events = {
     "Customer": {
         "after_insert": "canada_business_compliance.utils.territory.set_customer_territory",
         "on_update": "canada_business_compliance.utils.territory.set_customer_territory",
-    }
+    },
+    "Sales Invoice": {
+        "before_insert": "canada_business_compliance.utils.tax_resolver.auto_set_taxes",
+    },
+    "Quotation": {
+        "before_insert": "canada_business_compliance.utils.tax_resolver.auto_set_taxes",
+    },
 }
 
 custom_fields = {
