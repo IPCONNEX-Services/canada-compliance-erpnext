@@ -33,6 +33,13 @@ PROVINCE_TO_TEMPLATE_BASE = {
 }
 
 
+def _get_customer_name(doc):
+    """Return customer name regardless of doctype field convention."""
+    # Sales Invoice, Delivery Note, Sales Order → 'customer'
+    # Quotation → 'party_name' (when quotation_to = 'Customer')
+    return doc.get("customer") or doc.get("party_name")
+
+
 def get_province_code(doc):
     """Return 2-letter province code: billing address state first, customer territory as fallback."""
     # 1. Billing address state
@@ -44,10 +51,9 @@ def get_province_code(doc):
             return code
 
     # 2. Territory on the doc, or customer master
+    customer = _get_customer_name(doc)
     territory = doc.get("territory") or (
-        frappe.db.get_value("Customer", doc.get("customer"), "territory")
-        if doc.get("customer")
-        else None
+        frappe.db.get_value("Customer", customer, "territory") if customer else None
     )
     if territory:
         for code, name in PROVINCE_TERRITORY.items():
@@ -61,7 +67,7 @@ def auto_set_taxes(doc, method=None):
     """Set taxes_and_charges from province on before_insert. No-op if already set."""
     if doc.get("taxes_and_charges"):
         return
-    if not doc.get("customer"):
+    if not _get_customer_name(doc):
         return
 
     province = get_province_code(doc)
