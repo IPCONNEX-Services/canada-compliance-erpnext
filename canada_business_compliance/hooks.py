@@ -117,6 +117,6 @@ custom_fields = {
 fixtures = [
     {"dt": "Print Format", "filters": [["name", "=", "CA Tax Invoice"]]},
     {"dt": "Territory", "filters": [["parent_territory", "=", "Canada"]]},
-    # Sales Taxes and Charges Template requires company + account_head — create via setup script, not fixture
-    {"dt": "Tax Rule", "filters": [["sales_tax_template", "like", "CA %"]]},
+    # Tax Rules and Sales Tax Templates are created per-company via setup/setup_taxes.py, not fixtures
+    # (Tax Rules have auto-generated names; templates require company + account_head)
 ]
