@@ -24,6 +24,9 @@ doc_events = {
     "Quotation": {
         "before_insert": "canada_business_compliance.utils.tax_resolver.auto_set_taxes",
     },
+    "Sales Order": {
+        "before_insert": "canada_business_compliance.utils.tax_resolver.auto_set_taxes",
+    },
 }
 
 custom_fields = {

@@ -20,8 +20,8 @@ _FALLBACK_RATES = {
 }
 
 
-@frappe.whitelist(allow_guest=False)
-def get_province_taxes(province_code: str) -> list:
+@frappe.whitelist()
+def get_province_taxes(province_code=None):
     """Return tax rows for a province, suitable for Sales Order taxes child table.
 
     Tries the configured Sales Taxes and Charges Template first so account_heads
