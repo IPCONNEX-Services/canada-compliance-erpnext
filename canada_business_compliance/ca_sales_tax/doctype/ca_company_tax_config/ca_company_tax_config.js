@@ -1,4 +1,23 @@
 frappe.ui.form.on("CA Company Tax Config", {
+    setup: function (frm) {
+        ["gst_account", "hst_account", "pst_account", "qst_account"].forEach(function (field) {
+            frm.set_query(field, function () {
+                return {
+                    filters: [
+                        ["account_type", "in", ["Tax", "Payable"]],
+                        ["company", "=", frm.doc.company],
+                    ],
+                };
+            });
+        });
+    },
+
+    company: function (frm) {
+        ["gst_account", "hst_account", "pst_account", "qst_account"].forEach(function (f) {
+            frm.set_value(f, "");
+        });
+    },
+
     refresh: function (frm) {
         if (frm.doc.__islocal) return;
         if (!frm.doc.enabled || !frm.doc.collects_canada_sales_tax || frm.doc.is_small_supplier) return;

@@ -89,16 +89,14 @@
    "fieldtype": "Link",
    "label": "GST Account",
    "options": "Account",
-   "description": "Account for Goods and Services Tax (5%). Used in AB, BC, MB, NT, NU, QC, SK, YT.",
-   "get_query": "() => ({ filters: [['company', '=', doc.company], ['account_type', 'in', ['Tax', 'Payable']]] })"
+   "description": "Account for Goods and Services Tax (5%). Used in AB, BC, MB, NT, NU, QC, SK, YT."
   },
   {
    "fieldname": "hst_account",
    "fieldtype": "Link",
    "label": "HST Account",
    "options": "Account",
-   "description": "Account for Harmonized Sales Tax. Used in NB (15%), NL (15%), NS (15%), ON (13%), PE (15%).",
-   "get_query": "() => ({ filters: [['company', '=', doc.company], ['account_type', 'in', ['Tax', 'Payable']]] })"
+   "description": "Account for Harmonized Sales Tax. Used in NB (15%), NL (15%), NS (15%), ON (13%), PE (15%)."
   },
   {
    "fieldname": "col_break_1",
@@ -109,16 +107,14 @@
    "fieldtype": "Link",
    "label": "PST / RST Account",
    "options": "Account",
-   "description": "Account for Provincial Sales Tax. Used in BC (7%), MB (7%), SK (6%).",
-   "get_query": "() => ({ filters: [['company', '=', doc.company], ['account_type', 'in', ['Tax', 'Payable']]] })"
+   "description": "Account for Provincial Sales Tax. Used in BC (7%), MB (7%), SK (6%)."
   },
   {
    "fieldname": "qst_account",
    "fieldtype": "Link",
    "label": "QST Account",
    "options": "Account",
-   "description": "Account for Quebec Sales Tax (9.975%). Used in QC only.",
-   "get_query": "() => ({ filters: [['company', '=', doc.company], ['account_type', 'in', ['Tax', 'Payable']]] })"
+   "description": "Account for Quebec Sales Tax (9.975%). Used in QC only."
   },
   {
    "depends_on": "eval:doc.collects_canada_sales_tax",
