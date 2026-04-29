@@ -1,6 +1,5 @@
 // Canada Business Compliance — Canadian tax injection for Sales Order, Quotation, Sales Invoice.
-// Architecture: one memoized settings loader + one consolidated strip function (apply_canadian_rules)
-// that runs in fixed priority order after ERPNext applies a tax template.
+// Per-company config loaded from CA Company Tax Config; falls back silently if no config exists.
 
 (function () {
     "use strict";
@@ -21,23 +20,29 @@
         YT: "Yukon",
     };
 
-    // Province codes where PST exemption applies
     const PST_PROVINCES = new Set(["BC", "SK", "MB"]);
 
-    // Memoized per-page-load promise — resets on each form refresh
+    // Cache is keyed per company — reset on refresh or company change
     let _settings_promise = null;
+    let _settings_company = null;
 
-    function get_settings() {
+    function get_settings(frm) {
+        var company = frm.doc.company;
+        if (company !== _settings_company) {
+            _settings_promise = null;
+            _settings_company = company;
+        }
         if (!_settings_promise) {
             _settings_promise = frappe.call({
-                method: "frappe.client.get",
-                args: { doctype: "CA Tax Settings", name: "CA Tax Settings" },
-            }).then(function (r) { return r.message || {}; });
+                method: "canada_business_compliance.utils.tax_resolver.get_company_tax_config",
+                args: { company: company },
+            }).then(function (r) {
+                return r.message || null;
+            });
         }
         return _settings_promise;
     }
 
-    // Reverse-lookup: territory name → 2-letter province code
     function territory_to_province(territory) {
         for (var code in PROVINCE_TERRITORY) {
             if (PROVINCE_TERRITORY[code] === territory) return code;
@@ -45,7 +50,6 @@
         return null;
     }
 
-    // Remove specific rows from the taxes table without touching grid internals.
     function strip_tax_rows(frm, predicate) {
         var keep = (frm.doc.taxes || []).filter(function (row) { return !predicate(row); });
         var removed = frm.doc.taxes.length - keep.length;
@@ -60,7 +64,8 @@
     function apply_canadian_rules(frm) {
         if (!frm.doc.customer) return;
 
-        get_settings().then(function (s) {
+        get_settings(frm).then(function (s) {
+            if (!s) return;  // no CA config for this company — skip silently
 
             // Rule 1 — apply_to_* kill switch
             var apply_flag = {
@@ -107,7 +112,6 @@
                         message: __("Mixed zero-rated items detected. Split the invoice for accurate GST/HST treatment."),
                         indicator: "orange",
                     }, 8);
-                    // Do not modify taxes — user must handle the split
                 }
             }
 
@@ -118,7 +122,6 @@
                     if (!vals.pst_exempt && !vals.qst_exempt) return;
 
                     var province = territory_to_province(frm.doc.territory);
-
                     var pst_account = (s.pst_account || "").toLowerCase();
                     var qst_account = (s.qst_account || "").toLowerCase();
 
@@ -141,11 +144,10 @@
         });
     }
 
-    // ── Address → territory resolver (Items 5 + existing) ───────────────────────
+    // ── Address → territory resolver ────────────────────────────────────────────
 
     function resolve_address_to_territory(frm) {
         if (!frm.doc.customer) return;
-        // Shipping address takes priority; billing address is fallback for service transactions
         var address_name = frm.doc.shipping_address_name || frm.doc.customer_address;
         if (!address_name) return;
 
@@ -154,8 +156,6 @@
             var territory = PROVINCE_TERRITORY[state];
             if (territory && territory !== frm.doc.territory) {
                 frm.set_value("territory", territory);
-                // taxes_and_charges event fires after territory triggers Tax Rule lookup
-                // → apply_canadian_rules will strip exempt/zero-rated rows
             }
         });
     }
@@ -165,19 +165,24 @@
     ["Sales Order", "Quotation", "Sales Invoice"].forEach(function (doctype) {
         frappe.ui.form.on(doctype, {
             refresh: function (frm) {
-                _settings_promise = null;               // reload settings for new document
+                _settings_promise = null;
+                _settings_company = null;
                 frm.__ca_zero_rated_alerted = false;
                 apply_canadian_rules(frm);
             },
+            company: function (frm) {
+                // Reset settings cache when company changes on the document
+                _settings_promise = null;
+                _settings_company = null;
+            },
             shipping_address_name: resolve_address_to_territory,
-            customer_address:      resolve_address_to_territory,    // billing fallback (Item 5)
-            taxes_and_charges:     apply_canadian_rules,            // fires after template applied
+            customer_address:      resolve_address_to_territory,
+            taxes_and_charges:     apply_canadian_rules,
             items_add:             apply_canadian_rules,
             items_remove:          apply_canadian_rules,
         });
     });
 
-    // Child table: re-run rules when item_code changes in any row
     ["Sales Order Item", "Sales Invoice Item", "Quotation Item"].forEach(function (child) {
         frappe.ui.form.on(child, {
             item_code: function (frm) { apply_canadian_rules(frm); },

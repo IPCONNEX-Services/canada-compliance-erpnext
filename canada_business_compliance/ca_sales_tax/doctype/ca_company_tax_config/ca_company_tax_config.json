@@ -1,0 +1,208 @@
+{
+ "actions": [],
+ "autoname": "field:company",
+ "creation": "2026-04-29 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "enabled",
+  "collection_section",
+  "collects_canada_sales_tax",
+  "no_tax_html",
+  "is_small_supplier",
+  "small_supplier_note",
+  "tax_accounts_section",
+  "gst_account",
+  "hst_account",
+  "col_break_1",
+  "pst_account",
+  "qst_account",
+  "registration_section",
+  "gst_registration_number",
+  "qst_registration_number",
+  "apply_to_section",
+  "apply_to_sales_order",
+  "apply_to_quotation",
+  "apply_to_sales_invoice",
+  "tax_rules_section",
+  "use_tax_rules"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "collection_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Collection"
+  },
+  {
+   "default": "1",
+   "description": "Uncheck for companies not registered to collect Canadian sales taxes (e.g. a US subsidiary). All tax injection will be skipped for this company.",
+   "fieldname": "collects_canada_sales_tax",
+   "fieldtype": "Check",
+   "label": "Collects Canadian Sales Tax"
+  },
+  {
+   "fieldname": "no_tax_html",
+   "fieldtype": "HTML",
+   "depends_on": "eval:!doc.collects_canada_sales_tax",
+   "options": "<div class='alert alert-info' style='margin:4px 0 8px'>This company does not collect Canadian sales tax — no tax will be injected on any document.</div>"
+  },
+  {
+   "depends_on": "eval:doc.collects_canada_sales_tax",
+   "fieldname": "is_small_supplier",
+   "fieldtype": "Check",
+   "label": "Small Supplier (Annual taxable supplies under $30,000 CAD)",
+   "description": "When enabled, no GST/HST will be applied to any document. Required if not registered for GST/HST."
+  },
+  {
+   "depends_on": "eval:doc.collects_canada_sales_tax && doc.is_small_supplier",
+   "fieldname": "small_supplier_note",
+   "fieldtype": "HTML",
+   "options": "<div class='alert alert-warning' style='margin:4px 0 8px'>Small Supplier mode is ON — no Canadian tax will be injected on any document for this company.</div>"
+  },
+  {
+   "depends_on": "eval:doc.collects_canada_sales_tax",
+   "fieldname": "tax_accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Accounts"
+  },
+  {
+   "fieldname": "gst_account",
+   "fieldtype": "Link",
+   "label": "GST Account",
+   "options": "Account",
+   "description": "Account for Goods and Services Tax (5%). Used in AB, BC, MB, NT, NU, QC, SK, YT.",
+   "get_query": "() => ({ filters: [['company', '=', doc.company], ['account_type', 'in', ['Tax', 'Payable']]] })"
+  },
+  {
+   "fieldname": "hst_account",
+   "fieldtype": "Link",
+   "label": "HST Account",
+   "options": "Account",
+   "description": "Account for Harmonized Sales Tax. Used in NB (15%), NL (15%), NS (15%), ON (13%), PE (15%).",
+   "get_query": "() => ({ filters: [['company', '=', doc.company], ['account_type', 'in', ['Tax', 'Payable']]] })"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pst_account",
+   "fieldtype": "Link",
+   "label": "PST / RST Account",
+   "options": "Account",
+   "description": "Account for Provincial Sales Tax. Used in BC (7%), MB (7%), SK (6%).",
+   "get_query": "() => ({ filters: [['company', '=', doc.company], ['account_type', 'in', ['Tax', 'Payable']]] })"
+  },
+  {
+   "fieldname": "qst_account",
+   "fieldtype": "Link",
+   "label": "QST Account",
+   "options": "Account",
+   "description": "Account for Quebec Sales Tax (9.975%). Used in QC only.",
+   "get_query": "() => ({ filters: [['company', '=', doc.company], ['account_type', 'in', ['Tax', 'Payable']]] })"
+  },
+  {
+   "depends_on": "eval:doc.collects_canada_sales_tax",
+   "fieldname": "registration_section",
+   "fieldtype": "Section Break",
+   "label": "Registration Numbers"
+  },
+  {
+   "fieldname": "gst_registration_number",
+   "fieldtype": "Data",
+   "label": "GST/HST Registration No.",
+   "description": "Format: 123456789 RT0001 — printed on CA Tax Invoice.",
+   "placeholder": "123456789 RT0001"
+  },
+  {
+   "fieldname": "qst_registration_number",
+   "fieldtype": "Data",
+   "label": "QST Registration No.",
+   "description": "Format: 1234567890 TQ0001 — printed on CA Tax Invoice when operating in QC.",
+   "placeholder": "1234567890 TQ0001"
+  },
+  {
+   "depends_on": "eval:doc.collects_canada_sales_tax",
+   "fieldname": "apply_to_section",
+   "fieldtype": "Section Break",
+   "label": "Auto-Apply To"
+  },
+  {
+   "default": "1",
+   "fieldname": "apply_to_sales_order",
+   "fieldtype": "Check",
+   "label": "Sales Order"
+  },
+  {
+   "default": "1",
+   "fieldname": "apply_to_quotation",
+   "fieldtype": "Check",
+   "label": "Quotation"
+  },
+  {
+   "default": "1",
+   "fieldname": "apply_to_sales_invoice",
+   "fieldtype": "Check",
+   "label": "Sales Invoice"
+  },
+  {
+   "depends_on": "eval:doc.collects_canada_sales_tax",
+   "fieldname": "tax_rules_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Rules Engine"
+  },
+  {
+   "default": "1",
+   "fieldname": "use_tax_rules",
+   "fieldtype": "Check",
+   "label": "Use ERPNext Tax Rules",
+   "description": "Enable ERPNext native Tax Rules for automatic Canadian tax matching. Uncheck to disable all CA Tax Rules for this company."
+  }
+ ],
+ "in_create": 1,
+ "issingle": 0,
+ "links": [],
+ "modified": "2026-04-29 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "CA Sales Tax",
+ "name": "CA Company Tax Config",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 0,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "company",
+ "track_changes": 1
+}

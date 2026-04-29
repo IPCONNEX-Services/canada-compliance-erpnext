@@ -33,16 +33,39 @@ PROVINCE_TO_TEMPLATE_BASE = {
 }
 
 
+@frappe.whitelist()
+def get_company_tax_config(company):
+    """Return the CA Company Tax Config for a company, or None if not applicable."""
+    if not company:
+        return None
+    names = frappe.get_all("CA Company Tax Config", filters={"company": company}, pluck="name", limit=1)
+    if not names:
+        return None
+    config = frappe.get_doc("CA Company Tax Config", names[0])
+    if not config.enabled or not config.collects_canada_sales_tax:
+        return None
+    return config.as_dict()
+
+
+def _get_company_config_doc(company):
+    """Internal: return config Document or None."""
+    if not company:
+        return None
+    names = frappe.get_all("CA Company Tax Config", filters={"company": company}, pluck="name", limit=1)
+    if not names:
+        return None
+    config = frappe.get_doc("CA Company Tax Config", names[0])
+    if not config.enabled or not config.collects_canada_sales_tax:
+        return None
+    return config
+
+
 def _get_customer_name(doc):
-    """Return customer name regardless of doctype field convention."""
-    # Sales Invoice, Delivery Note, Sales Order → 'customer'
-    # Quotation → 'party_name' (when quotation_to = 'Customer')
     return doc.get("customer") or doc.get("party_name")
 
 
 def get_province_code(doc):
     """Return 2-letter province code: billing address state first, customer territory as fallback."""
-    # 1. Billing address state
     address_name = doc.get("customer_address")
     if address_name:
         state = frappe.db.get_value("Address", address_name, "state") or ""
@@ -50,7 +73,6 @@ def get_province_code(doc):
         if code in PROVINCE_TO_TEMPLATE_BASE:
             return code
 
-    # 2. Territory on the doc, or customer master
     customer = _get_customer_name(doc)
     territory = doc.get("territory") or (
         frappe.db.get_value("Customer", customer, "territory") if customer else None
@@ -68,6 +90,12 @@ def auto_set_taxes(doc, method=None):
     if doc.get("taxes_and_charges"):
         return
     if not _get_customer_name(doc):
+        return
+
+    config = _get_company_config_doc(doc.company)
+    if not config:
+        return
+    if config.is_small_supplier:
         return
 
     province = get_province_code(doc)
