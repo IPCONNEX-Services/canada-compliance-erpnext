@@ -4,7 +4,7 @@ app_publisher = "IPCONNEX"
 app_description = "Canadian business compliance for Frappe/ERPNext — sales tax, payroll, and more"
 app_email = "dev@ipconnex.com"
 app_license = "MIT"
-app_version = "0.2.0"
+app_version = "0.3.0"
 
 doctype_js = {
     "Sales Order":   "canada_business_compliance/public/js/ca_sales_tax.js",
@@ -126,5 +126,6 @@ custom_fields = {
 fixtures = [
     {"dt": "Print Format", "filters": [["name", "=", "CA Tax Invoice"]]},
     {"dt": "Territory", "filters": [["parent_territory", "=", "Canada"]]},
+    {"dt": "Workspace", "filters": [["name", "=", "Canada Compliance"]]},
     # Tax Templates and Tax Rules are created per-company via Setup button on CA Company Tax Config
 ]
