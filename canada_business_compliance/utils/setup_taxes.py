@@ -1,13 +1,24 @@
 import frappe
 
-# Tax accounts to create: key → (account_name, account_type)
-_TAX_ACCOUNTS = {
+# Simple mode: one PST account for all PST provinces
+_TAX_ACCOUNTS_SIMPLE = {
     "gst": ("GST Payable", "Tax"),
     "hst": ("HST Payable", "Tax"),
     "pst": ("PST Payable", "Tax"),
     "qst": ("QST Payable", "Tax"),
 }
 
+# Advanced mode: separate PST account per province
+_TAX_ACCOUNTS_ADVANCED = {
+    "gst":    ("GST Payable",     "Tax"),
+    "hst":    ("HST Payable",     "Tax"),
+    "pst_bc": ("BC PST Payable",  "Tax"),
+    "pst_sk": ("SK PST Payable",  "Tax"),
+    "rst_mb": ("MB RST Payable",  "Tax"),
+    "qst":    ("QST Payable",     "Tax"),
+}
+
+# Simple mode province → template name
 PROVINCE_TO_TEMPLATE = {
     "AB": "CA GST Only",
     "NT": "CA GST Only",
@@ -22,6 +33,14 @@ PROVINCE_TO_TEMPLATE = {
     "MB": "CA GST + PST 7%",
     "SK": "CA GST + PST 6%",
     "QC": "CA GST + QST",
+}
+
+# Advanced mode: PST provinces get province-specific templates
+PROVINCE_TO_TEMPLATE_ADVANCED = {
+    **PROVINCE_TO_TEMPLATE,
+    "BC": "CA GST + BC PST 7%",
+    "MB": "CA GST + MB RST 7%",
+    "SK": "CA GST + SK PST 6%",
 }
 
 PROVINCE_NAMES = {
@@ -48,14 +67,17 @@ def _province_code(province_str):
     return province_str.split(" - ")[0].strip().upper()
 
 
-def _accounts_for_province(province_code):
+def _accounts_for_province(province_code, advanced_mode=False):
     """
     Return the set of account keys to create for a given province.
-    GST + HST are always included: GST for non-HST provinces, HST for the five HST provinces.
-    PST is added for BC/SK/MB; QST for QC.
+    GST + HST are always included (needed for pan-Canadian selling).
+    Simple mode: PST for BC/SK/MB; QST for QC.
+    Advanced mode: all three per-province PST accounts + QST for QC.
     """
     needed = {"gst", "hst"}
-    if province_code in ("BC", "SK", "MB"):
+    if advanced_mode:
+        needed.update({"pst_bc", "pst_sk", "rst_mb"})
+    elif province_code in ("BC", "SK", "MB"):
         needed.add("pst")
     if province_code == "QC":
         needed.add("qst")
@@ -68,8 +90,12 @@ def _template_rows(base_name, config):
     hst = config.hst_account
     pst = config.pst_account
     qst = config.qst_account
+    pst_bc = getattr(config, "pst_bc_account", None)
+    pst_sk = getattr(config, "pst_sk_account", None)
+    rst_mb = getattr(config, "rst_mb_account", None)
 
     definitions = {
+        # --- Simple mode templates ---
         "CA GST Only": [
             {"charge_type": "On Net Total", "account_head": gst, "description": "GST 5%", "rate": 5.0},
         ],
@@ -91,6 +117,19 @@ def _template_rows(base_name, config):
             {"charge_type": "On Net Total", "account_head": gst, "description": "GST 5%", "rate": 5.0},
             {"charge_type": "On Net Total", "account_head": qst, "description": "QST 9.975%", "rate": 9.975},
         ],
+        # --- Advanced mode per-province PST templates ---
+        "CA GST + BC PST 7%": [
+            {"charge_type": "On Net Total", "account_head": gst,    "description": "GST 5%",     "rate": 5.0},
+            {"charge_type": "On Net Total", "account_head": pst_bc, "description": "BC PST 7%",  "rate": 7.0},
+        ],
+        "CA GST + MB RST 7%": [
+            {"charge_type": "On Net Total", "account_head": gst,    "description": "GST 5%",     "rate": 5.0},
+            {"charge_type": "On Net Total", "account_head": rst_mb, "description": "MB RST 7%",  "rate": 7.0},
+        ],
+        "CA GST + SK PST 6%": [
+            {"charge_type": "On Net Total", "account_head": gst,    "description": "GST 5%",     "rate": 5.0},
+            {"charge_type": "On Net Total", "account_head": pst_sk, "description": "SK PST 6%",  "rate": 6.0},
+        ],
     }
     return definitions.get(base_name, [])
 
@@ -106,6 +145,7 @@ def _get_config(company):
 def setup_company_taxes(company):
     """
     Create or update Sales Tax Templates and Tax Rules for one company.
+    In advanced PST mode, generates province-specific PST templates (BC/SK/MB).
     Called from the Generate Tax Templates button on CA Company Tax Config.
     """
     config = _get_config(company)
@@ -129,12 +169,14 @@ def setup_company_taxes(company):
     if not abbr:
         frappe.throw(f"Company abbreviation not found for '{company}'.")
 
+    advanced = bool(config.use_advanced_pst)
+    province_map = PROVINCE_TO_TEMPLATE_ADVANCED if advanced else PROVINCE_TO_TEMPLATE
     tpl_created = tpl_updated = rule_created = rule_updated = 0
 
     # --- Sales Tax Templates ---
-    for base_name in set(PROVINCE_TO_TEMPLATE.values()):
+    for base_name in set(province_map.values()):
         rows = _template_rows(base_name, config)
-        # Skip templates whose required account is missing (e.g. PST when company is in ON)
+        # Skip templates whose required account is missing
         if any(not r["account_head"] for r in rows):
             continue
 
@@ -156,8 +198,8 @@ def setup_company_taxes(company):
             doc.insert(ignore_permissions=True)
             tpl_created += 1
 
-    # --- Tax Rules (one per province, billing_state = province code) ---
-    for province, base_name in PROVINCE_TO_TEMPLATE.items():
+    # --- Tax Rules (one per province) ---
+    for province, base_name in province_map.items():
         tpl_name = f"{base_name} - {abbr}"
         if not frappe.db.exists("Sales Taxes and Charges Template", tpl_name):
             continue
@@ -192,6 +234,7 @@ def setup_company_taxes(company):
         "templates_updated": tpl_updated,
         "rules_created": rule_created,
         "rules_updated": rule_updated,
+        "advanced_mode": advanced,
     }
 
 
@@ -204,7 +247,6 @@ def _find_tax_parent(company, abbr):
         if frappe.db.exists("Account", candidate):
             return candidate
 
-    # Fall back to the parent of any existing Tax-type account for this company
     existing = frappe.get_all(
         "Account",
         filters={"company": company, "account_type": "Tax", "is_group": 0},
@@ -224,9 +266,10 @@ def _find_tax_parent(company, abbr):
 @frappe.whitelist()
 def ensure_company_tax_accounts(company):
     """
-    Create GST/HST (always) and PST or QST (based on registered province) payable
-    accounts under the company's CoA. Saves account links back to CA Company Tax Config.
-    If province is unknown, all four accounts are created as a safe default.
+    Create tax payable accounts for the company based on its registered province and mode.
+    Simple mode: GST + HST always; PST for BC/SK/MB; QST for QC.
+    Advanced mode: GST + HST + all three per-province PST accounts; QST for QC.
+    Saves account links back to CA Company Tax Config.
     """
     frappe.has_permission("CA Company Tax Config", "write", throw=True)
 
@@ -236,19 +279,23 @@ def ensure_company_tax_accounts(company):
 
     configs = frappe.get_all("CA Company Tax Config", filters={"company": company}, pluck="name", limit=1)
     province = None
+    advanced = False
     if configs:
-        province = _province_code(
-            frappe.db.get_value("CA Company Tax Config", configs[0], "company_province")
+        config_vals = frappe.db.get_value(
+            "CA Company Tax Config", configs[0], ["company_province", "use_advanced_pst"], as_dict=True
         )
+        province = _province_code(config_vals.get("company_province"))
+        advanced = bool(config_vals.get("use_advanced_pst"))
 
-    accounts_to_create = _accounts_for_province(province) if province else set(_TAX_ACCOUNTS.keys())
+    tax_accounts = _TAX_ACCOUNTS_ADVANCED if advanced else _TAX_ACCOUNTS_SIMPLE
+    accounts_to_create = _accounts_for_province(province, advanced) if province else set(tax_accounts.keys())
 
     parent = _find_tax_parent(company, abbr)
     result = {}
     created = []
     warnings = []
 
-    for key, (account_name, account_type) in _TAX_ACCOUNTS.items():
+    for key, (account_name, account_type) in tax_accounts.items():
         if key not in accounts_to_create:
             continue
 
@@ -285,8 +332,13 @@ def ensure_company_tax_accounts(company):
         config = frappe.get_doc("CA Company Tax Config", configs[0])
         config.gst_account = result.get("gst") or config.gst_account
         config.hst_account = result.get("hst") or config.hst_account
-        config.pst_account = result.get("pst") or config.pst_account
         config.qst_account = result.get("qst") or config.qst_account
+        if advanced:
+            config.pst_bc_account = result.get("pst_bc") or config.pst_bc_account
+            config.pst_sk_account = result.get("pst_sk") or config.pst_sk_account
+            config.rst_mb_account = result.get("rst_mb") or config.rst_mb_account
+        else:
+            config.pst_account = result.get("pst") or config.pst_account
         config.save(ignore_permissions=True)
 
-    return {"accounts": result, "created": created, "warnings": warnings}
+    return {"accounts": result, "created": created, "warnings": warnings, "advanced_mode": advanced}

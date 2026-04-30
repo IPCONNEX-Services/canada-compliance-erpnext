@@ -1,6 +1,9 @@
+var _CA_ACCOUNT_FIELDS = ["gst_account", "hst_account", "pst_account", "qst_account",
+                          "pst_bc_account", "pst_sk_account", "rst_mb_account"];
+
 frappe.ui.form.on("CA Company Tax Config", {
     setup: function (frm) {
-        ["gst_account", "hst_account", "pst_account", "qst_account"].forEach(function (field) {
+        _CA_ACCOUNT_FIELDS.forEach(function (field) {
             frm.set_query(field, function () {
                 return {
                     filters: [
@@ -14,9 +17,7 @@ frappe.ui.form.on("CA Company Tax Config", {
 
     company: function (frm) {
         frm.set_value("company_province", "");
-        ["gst_account", "hst_account", "pst_account", "qst_account"].forEach(function (f) {
-            frm.set_value(f, "");
-        });
+        _CA_ACCOUNT_FIELDS.forEach(function (f) { frm.set_value(f, ""); });
 
         if (!frm.doc.company) return;
 
@@ -45,15 +46,16 @@ frappe.ui.form.on("CA Company Tax Config", {
                 return;
             }
 
+            var mode_hint = frm.doc.use_advanced_pst
+                ? __(" in <b>advanced mode</b> (BC PST, SK PST, MB RST separately)")
+                : __("");
             var province_hint = frm.doc.company_province
-                ? __(" (province: <b>{0}</b>)", [frm.doc.company_province])
-                : __(" (no province set — all 4 accounts will be created)");
+                ? __(" for province <b>{0}</b>", [frm.doc.company_province])
+                : __(" (no province set — all accounts will be created)");
 
             frappe.confirm(
-                __(
-                    "Create missing tax accounts under <b>{0}</b>'s Chart of Accounts{1}?",
-                    [frm.doc.company, province_hint]
-                ),
+                __("Create missing tax accounts{0}{1} under <b>{2}</b>'s Chart of Accounts?",
+                    [province_hint, mode_hint, frm.doc.company]),
                 function () {
                     frappe.show_progress(__("Creating accounts…"), 40, 100, __("Checking Chart of Accounts…"));
                     frappe.call({
@@ -91,8 +93,11 @@ frappe.ui.form.on("CA Company Tax Config", {
         }, __("Setup"));
 
         frm.add_custom_button(__("Generate Tax Templates & Rules"), function () {
+            var mode_label = frm.doc.use_advanced_pst
+                ? __(" (advanced per-province PST mode)") : __("");
             frappe.confirm(
-                __("Create or update Sales Tax Templates and Tax Rules for <b>{0}</b>?", [frm.doc.company]),
+                __("Create or update Sales Tax Templates and Tax Rules for <b>{0}</b>{1}?",
+                    [frm.doc.company, mode_label]),
                 function () {
                     frappe.show_progress(__("Generating…"), 30, 100, __("Creating templates and tax rules…"));
                     frappe.call({
@@ -106,8 +111,10 @@ frappe.ui.form.on("CA Company Tax Config", {
                                     title: __("Done"),
                                     indicator: "green",
                                     message: __(
-                                        "Tax Templates: {0} created, {1} updated<br>Tax Rules: {2} created, {3} updated",
-                                        [m.templates_created, m.templates_updated, m.rules_created, m.rules_updated]
+                                        "Tax Templates: {0} created, {1} updated<br>"
+                                        + "Tax Rules: {2} created, {3} updated",
+                                        [m.templates_created, m.templates_updated,
+                                         m.rules_created, m.rules_updated]
                                     ),
                                 });
                             }
