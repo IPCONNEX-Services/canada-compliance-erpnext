@@ -174,7 +174,7 @@
    "description": "Enable ERPNext native Tax Rules for automatic Canadian tax matching. Uncheck to disable all CA Tax Rules for this company."
   }
  ],
- "in_create": 1,
+ "in_create": 0,
  "issingle": 0,
  "links": [],
  "modified": "2026-04-30 00:00:00.000000",
