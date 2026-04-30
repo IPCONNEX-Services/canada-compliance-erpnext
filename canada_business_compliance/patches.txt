@@ -1,2 +1,3 @@
 canada_business_compliance.patches.v0_3_0.migrate_settings_to_company_config
 canada_business_compliance.patches.v0_3_0.fix_company_config_permissions
+canada_business_compliance.patches.v0_3_0.set_company_config_perms_direct
