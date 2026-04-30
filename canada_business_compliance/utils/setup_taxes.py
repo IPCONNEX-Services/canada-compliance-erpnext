@@ -1,6 +1,6 @@
 import frappe
 
-# Tax accounts to create per type: (account_name, account_type, description)
+# Tax accounts to create: key → (account_name, account_type)
 _TAX_ACCOUNTS = {
     "gst": ("GST Payable", "Tax"),
     "hst": ("HST Payable", "Tax"),
@@ -39,6 +39,27 @@ PROVINCE_NAMES = {
     "SK": "Saskatchewan",
     "YT": "Yukon",
 }
+
+
+def _province_code(province_str):
+    """Extract 2-letter code from 'AB - Alberta' or return 'AB' as-is."""
+    if not province_str:
+        return None
+    return province_str.split(" - ")[0].strip().upper()
+
+
+def _accounts_for_province(province_code):
+    """
+    Return the set of account keys to create for a given province.
+    GST + HST are always included: GST for non-HST provinces, HST for the five HST provinces.
+    PST is added for BC/SK/MB; QST for QC.
+    """
+    needed = {"gst", "hst"}
+    if province_code in ("BC", "SK", "MB"):
+        needed.add("pst")
+    if province_code == "QC":
+        needed.add("qst")
+    return needed
 
 
 def _template_rows(base_name, config):
@@ -166,8 +187,6 @@ def setup_company_taxes(company):
             rule.insert(ignore_permissions=True)
             rule_created += 1
 
-    frappe.db.commit()
-
     return {
         "templates_created": tpl_created,
         "templates_updated": tpl_updated,
@@ -181,7 +200,6 @@ def _find_tax_parent(company, abbr):
     for candidate in [
         f"Duties and Taxes - {abbr}",
         f"Tax Payable - {abbr}",
-        f"Current Liabilities - {abbr}",
     ]:
         if frappe.db.exists("Account", candidate):
             return candidate
@@ -206,34 +224,63 @@ def _find_tax_parent(company, abbr):
 @frappe.whitelist()
 def ensure_company_tax_accounts(company):
     """
-    Create GST, HST, PST and QST payable accounts for the company if they don't exist.
-    Populates the matching fields on CA Company Tax Config and returns the account names.
-    Called from the CA Company Tax Config form before generating tax templates.
+    Create GST/HST (always) and PST or QST (based on registered province) payable
+    accounts under the company's CoA. Saves account links back to CA Company Tax Config.
+    If province is unknown, all four accounts are created as a safe default.
     """
+    frappe.has_permission("CA Company Tax Config", "write", throw=True)
+
     abbr = frappe.db.get_value("Company", company, "abbr")
     if not abbr:
         frappe.throw(f"Company abbreviation not found for '{company}'.")
 
+    configs = frappe.get_all("CA Company Tax Config", filters={"company": company}, pluck="name", limit=1)
+    province = None
+    if configs:
+        province = _province_code(
+            frappe.db.get_value("CA Company Tax Config", configs[0], "company_province")
+        )
+
+    accounts_to_create = _accounts_for_province(province) if province else set(_TAX_ACCOUNTS.keys())
+
     parent = _find_tax_parent(company, abbr)
     result = {}
     created = []
+    warnings = []
 
     for key, (account_name, account_type) in _TAX_ACCOUNTS.items():
+        if key not in accounts_to_create:
+            continue
+
         full_name = f"{account_name} - {abbr}"
         if frappe.db.exists("Account", full_name):
             result[key] = full_name
-        else:
-            doc = frappe.new_doc("Account")
-            doc.account_name = account_name
-            doc.parent_account = parent
-            doc.account_type = account_type
-            doc.company = company
-            doc.insert(ignore_permissions=True)
-            result[key] = doc.name
-            created.append(account_name)
+            continue
+
+        # Warn if a differently-named account with the same tax type already exists
+        first_word = account_name.split()[0]
+        similar = frappe.get_all(
+            "Account",
+            filters={"company": company, "account_type": "Tax", "account_name": ["like", f"%{first_word}%"]},
+            pluck="name",
+            limit=3,
+        )
+        if similar:
+            warnings.append(
+                f"Creating <b>{full_name}</b> but found similar existing account(s): "
+                f"{', '.join(similar)}. Verify you do not have duplicates."
+            )
+
+        doc = frappe.new_doc("Account")
+        doc.account_name = account_name
+        doc.parent_account = parent
+        doc.account_type = account_type
+        doc.company = company
+        doc.insert(ignore_permissions=True)
+        result[key] = doc.name
+        created.append(account_name)
 
     # Persist account links back onto the config record
-    configs = frappe.get_all("CA Company Tax Config", filters={"company": company}, pluck="name", limit=1)
     if configs:
         config = frappe.get_doc("CA Company Tax Config", configs[0])
         config.gst_account = result.get("gst") or config.gst_account
@@ -242,5 +289,4 @@ def ensure_company_tax_accounts(company):
         config.qst_account = result.get("qst") or config.qst_account
         config.save(ignore_permissions=True)
 
-    frappe.db.commit()
-    return {"accounts": result, "created": created}
+    return {"accounts": result, "created": created, "warnings": warnings}

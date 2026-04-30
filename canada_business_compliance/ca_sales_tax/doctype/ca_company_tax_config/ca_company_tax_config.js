@@ -45,10 +45,14 @@ frappe.ui.form.on("CA Company Tax Config", {
                 return;
             }
 
+            var province_hint = frm.doc.company_province
+                ? __(" (province: <b>{0}</b>)", [frm.doc.company_province])
+                : __(" (no province set — all 4 accounts will be created)");
+
             frappe.confirm(
                 __(
-                    "Create missing tax accounts (GST, HST, PST, QST) under <b>{0}</b>'s Chart of Accounts?",
-                    [frm.doc.company]
+                    "Create missing tax accounts under <b>{0}</b>'s Chart of Accounts{1}?",
+                    [frm.doc.company, province_hint]
                 ),
                 function () {
                     frappe.show_progress(__("Creating accounts…"), 40, 100, __("Checking Chart of Accounts…"));
@@ -59,23 +63,24 @@ frappe.ui.form.on("CA Company Tax Config", {
                             frappe.hide_progress();
                             if (r.exc || !r.message) return;
 
-                            var accts = r.message.accounts;
                             var created = r.message.created;
-
-                            frm.set_value("gst_account", accts.gst || "");
-                            frm.set_value("hst_account", accts.hst || "");
-                            frm.set_value("pst_account", accts.pst || "");
-                            frm.set_value("qst_account", accts.qst || "");
+                            var warnings = r.message.warnings || [];
 
                             var detail = created.length
                                 ? __("Created: <b>{0}</b>", [created.join(", ")])
                                 : __("All accounts already existed — nothing new was created.");
 
+                            var msg = detail + "<br><br>"
+                                + __("Click <b>Generate Tax Templates & Rules</b> to finish setup.");
+
+                            if (warnings.length) {
+                                msg += "<br><br><b>" + __("Warnings") + ":</b><br>" + warnings.join("<br>");
+                            }
+
                             frappe.msgprint({
                                 title: __("Tax Accounts Ready"),
-                                indicator: "green",
-                                message: detail + "<br><br>"
-                                    + __("Account fields have been saved. Click <b>Generate Tax Templates & Rules</b> to finish setup."),
+                                indicator: warnings.length ? "orange" : "green",
+                                message: msg,
                             });
 
                             frm.reload_doc();

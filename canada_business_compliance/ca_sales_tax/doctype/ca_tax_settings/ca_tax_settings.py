@@ -3,13 +3,9 @@ from frappe.model.document import Document
 
 
 class CATaxSettings(Document):
-    def on_update(self):
-        if not self.has_value_changed("use_tax_rules"):
-            return
-        disabled = 0 if self.use_tax_rules else 1
-        rules = frappe.get_all(
-            "Tax Rule",
-            filters={"tax_type": "Sales", "name": ["like", "CA %"]},
+    def validate(self):
+        frappe.throw(
+            "CA Tax Settings is deprecated — use <b>CA Company Tax Config</b> instead "
+            "(Setup &rarr; CA Company Tax Config &rarr; New, one record per company).",
+            title="Deprecated",
         )
-        for rule in rules:
-            frappe.db.set_value("Tax Rule", rule.name, "disabled", disabled)
