@@ -1,5 +1,13 @@
 import frappe
 
+# Tax accounts to create per type: (account_name, account_type, description)
+_TAX_ACCOUNTS = {
+    "gst": ("GST Payable", "Tax"),
+    "hst": ("HST Payable", "Tax"),
+    "pst": ("PST Payable", "Tax"),
+    "qst": ("QST Payable", "Tax"),
+}
+
 PROVINCE_TO_TEMPLATE = {
     "AB": "CA GST Only",
     "NT": "CA GST Only",
@@ -166,3 +174,73 @@ def setup_company_taxes(company):
         "rules_created": rule_created,
         "rules_updated": rule_updated,
     }
+
+
+def _find_tax_parent(company, abbr):
+    """Return the parent account to use for new tax accounts."""
+    for candidate in [
+        f"Duties and Taxes - {abbr}",
+        f"Tax Payable - {abbr}",
+        f"Current Liabilities - {abbr}",
+    ]:
+        if frappe.db.exists("Account", candidate):
+            return candidate
+
+    # Fall back to the parent of any existing Tax-type account for this company
+    existing = frappe.get_all(
+        "Account",
+        filters={"company": company, "account_type": "Tax", "is_group": 0},
+        fields=["parent_account"],
+        limit=1,
+    )
+    if existing and existing[0].parent_account:
+        return existing[0].parent_account
+
+    frappe.throw(
+        f"Cannot find a parent account for tax accounts in <b>{company}</b>. "
+        f"Please create <b>Duties and Taxes - {abbr}</b> in the Chart of Accounts first.",
+        title="Chart of Accounts Incomplete",
+    )
+
+
+@frappe.whitelist()
+def ensure_company_tax_accounts(company):
+    """
+    Create GST, HST, PST and QST payable accounts for the company if they don't exist.
+    Populates the matching fields on CA Company Tax Config and returns the account names.
+    Called from the CA Company Tax Config form before generating tax templates.
+    """
+    abbr = frappe.db.get_value("Company", company, "abbr")
+    if not abbr:
+        frappe.throw(f"Company abbreviation not found for '{company}'.")
+
+    parent = _find_tax_parent(company, abbr)
+    result = {}
+    created = []
+
+    for key, (account_name, account_type) in _TAX_ACCOUNTS.items():
+        full_name = f"{account_name} - {abbr}"
+        if frappe.db.exists("Account", full_name):
+            result[key] = full_name
+        else:
+            doc = frappe.new_doc("Account")
+            doc.account_name = account_name
+            doc.parent_account = parent
+            doc.account_type = account_type
+            doc.company = company
+            doc.insert(ignore_permissions=True)
+            result[key] = doc.name
+            created.append(account_name)
+
+    # Persist account links back onto the config record
+    configs = frappe.get_all("CA Company Tax Config", filters={"company": company}, pluck="name", limit=1)
+    if configs:
+        config = frappe.get_doc("CA Company Tax Config", configs[0])
+        config.gst_account = result.get("gst") or config.gst_account
+        config.hst_account = result.get("hst") or config.hst_account
+        config.pst_account = result.get("pst") or config.pst_account
+        config.qst_account = result.get("qst") or config.qst_account
+        config.save(ignore_permissions=True)
+
+    frappe.db.commit()
+    return {"accounts": result, "created": created}

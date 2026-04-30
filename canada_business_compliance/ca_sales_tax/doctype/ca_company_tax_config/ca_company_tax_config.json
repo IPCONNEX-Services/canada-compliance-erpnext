@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "company",
+  "company_province",
   "enabled",
   "collection_section",
   "collects_canada_sales_tax",
@@ -22,6 +23,9 @@
   "registration_section",
   "gst_registration_number",
   "qst_registration_number",
+  "pst_bc_registration_number",
+  "pst_sk_registration_number",
+  "rst_mb_registration_number",
   "apply_to_section",
   "apply_to_sales_order",
   "apply_to_quotation",
@@ -39,6 +43,14 @@
    "options": "Company",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "fieldname": "company_province",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Company Province / Territory",
+   "options": "\nAB - Alberta\nBC - British Columbia\nMB - Manitoba\nNB - New Brunswick\nNL - Newfoundland and Labrador\nNS - Nova Scotia\nNT - Northwest Territories\nNU - Nunavut\nON - Ontario\nPE - Prince Edward Island\nQC - Quebec\nSK - Saskatchewan\nYT - Yukon",
+   "description": "Province or territory where this company is registered. Used to determine which tax accounts to create."
   },
   {
    "default": "1",
@@ -135,6 +147,27 @@
    "label": "QST Registration No.",
    "description": "Format: 1234567890 TQ0001 — printed on CA Tax Invoice when operating in QC.",
    "placeholder": "1234567890 TQ0001"
+  },
+  {
+   "fieldname": "pst_bc_registration_number",
+   "fieldtype": "Data",
+   "label": "BC PST Registration No.",
+   "description": "Required if collecting BC Provincial Sales Tax. Format: PST-XXXX-XXXX.",
+   "placeholder": "PST-1234-5678"
+  },
+  {
+   "fieldname": "pst_sk_registration_number",
+   "fieldtype": "Data",
+   "label": "SK PST Business ID",
+   "description": "Required if collecting Saskatchewan PST. Issued by Saskatchewan Finance.",
+   "placeholder": "1234567"
+  },
+  {
+   "fieldname": "rst_mb_registration_number",
+   "fieldtype": "Data",
+   "label": "MB RST Number",
+   "description": "Required if collecting Manitoba Retail Sales Tax. Issued by Manitoba Finance.",
+   "placeholder": "1234567"
   },
   {
    "depends_on": "eval:doc.collects_canada_sales_tax",
