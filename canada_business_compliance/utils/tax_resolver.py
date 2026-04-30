@@ -64,6 +64,13 @@ def _get_customer_name(doc):
     return doc.get("customer") or doc.get("party_name")
 
 
+def _province_code(province_str):
+    """Extract 2-letter code from 'AB - Alberta' or return 'AB' as-is."""
+    if not province_str:
+        return None
+    return province_str.split(" - ")[0].strip().upper()
+
+
 def get_province_code(doc):
     """Return 2-letter province code: billing address state first, customer territory as fallback."""
     address_name = doc.get("customer_address")

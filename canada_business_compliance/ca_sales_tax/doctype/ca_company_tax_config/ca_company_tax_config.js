@@ -48,7 +48,7 @@ frappe.ui.form.on("CA Company Tax Config", {
 
             var mode_hint = frm.doc.use_advanced_pst
                 ? __(" in <b>advanced mode</b> (BC PST, SK PST, MB RST separately)")
-                : __("");
+                : "";
             var province_hint = frm.doc.company_province
                 ? __(" for province <b>{0}</b>", [frm.doc.company_province])
                 : __(" (no province set — all accounts will be created)");
@@ -94,7 +94,7 @@ frappe.ui.form.on("CA Company Tax Config", {
 
         frm.add_custom_button(__("Generate Tax Templates & Rules"), function () {
             var mode_label = frm.doc.use_advanced_pst
-                ? __(" (advanced per-province PST mode)") : __("");
+                ? __(" (advanced per-province PST mode)") : "";
             frappe.confirm(
                 __("Create or update Sales Tax Templates and Tax Rules for <b>{0}</b>{1}?",
                     [frm.doc.company, mode_label]),
