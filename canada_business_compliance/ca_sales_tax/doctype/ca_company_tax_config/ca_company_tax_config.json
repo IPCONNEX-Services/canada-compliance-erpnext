@@ -20,12 +20,6 @@
   "col_break_1",
   "pst_account",
   "qst_account",
-  "advanced_pst_section",
-  "use_advanced_pst",
-  "advanced_pst_note",
-  "pst_bc_account",
-  "pst_sk_account",
-  "rst_mb_account",
   "registration_section",
   "gst_registration_number",
   "qst_registration_number",
@@ -121,12 +115,11 @@
    "fieldtype": "Column Break"
   },
   {
-   "depends_on": "eval:!doc.use_advanced_pst",
    "fieldname": "pst_account",
    "fieldtype": "Link",
    "label": "PST / RST Account",
    "options": "Account",
-   "description": "Single account for all Provincial Sales Tax (BC 7%, MB 7%, SK 6%). Standard for most companies."
+   "description": "Account for Provincial Sales Tax. Used in BC (7%), MB (7%), SK (6%)."
   },
   {
    "fieldname": "qst_account",
@@ -134,49 +127,6 @@
    "label": "QST Account",
    "options": "Account",
    "description": "Account for Quebec Sales Tax (9.975%). Used in QC only."
-  },
-  {
-   "collapsible": 1,
-   "depends_on": "eval:doc.collects_canada_sales_tax",
-   "fieldname": "advanced_pst_section",
-   "fieldtype": "Section Break",
-   "label": "Advanced: Per-Province PST Accounts"
-  },
-  {
-   "fieldname": "use_advanced_pst",
-   "fieldtype": "Check",
-   "label": "Use separate PST account per province",
-   "description": "Enable only if this company has physical branches in multiple PST provinces (BC, SK, MB) and files separate PST returns to each provincial government."
-  },
-  {
-   "depends_on": "eval:doc.use_advanced_pst",
-   "fieldname": "advanced_pst_note",
-   "fieldtype": "HTML",
-   "options": "<div class='alert alert-info' style='margin:4px 0 8px'>Advanced mode — separate tax accounts and templates will be generated per province. The single PST/RST Account above is ignored.</div>"
-  },
-  {
-   "depends_on": "eval:doc.use_advanced_pst",
-   "fieldname": "pst_bc_account",
-   "fieldtype": "Link",
-   "label": "BC PST Account",
-   "options": "Account",
-   "description": "Account for British Columbia PST (7%). Remitted to BC Ministry of Finance."
-  },
-  {
-   "depends_on": "eval:doc.use_advanced_pst",
-   "fieldname": "pst_sk_account",
-   "fieldtype": "Link",
-   "label": "SK PST Account",
-   "options": "Account",
-   "description": "Account for Saskatchewan PST (6%). Remitted to Saskatchewan Finance."
-  },
-  {
-   "depends_on": "eval:doc.use_advanced_pst",
-   "fieldname": "rst_mb_account",
-   "fieldtype": "Link",
-   "label": "MB RST Account",
-   "options": "Account",
-   "description": "Account for Manitoba Retail Sales Tax (7%). Remitted to Manitoba Finance."
   },
   {
    "depends_on": "eval:doc.collects_canada_sales_tax",
@@ -277,6 +227,24 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "export": 1
   }
  ],
  "quick_entry": 0,
