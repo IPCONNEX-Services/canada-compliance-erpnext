@@ -7,10 +7,12 @@ app_license = "MIT"
 app_version = "0.2.0"
 
 doctype_js = {
-    "Sales Order":   "canada_business_compliance/public/js/ca_sales_tax.js",
-    "Quotation":     "canada_business_compliance/public/js/ca_sales_tax.js",
-    "Sales Invoice": "canada_business_compliance/public/js/ca_sales_tax.js",
-    "Address":       "canada_business_compliance/public/js/ca_address.js",
+    "Sales Order":      "canada_business_compliance/public/js/ca_sales_tax.js",
+    "Quotation":        "canada_business_compliance/public/js/ca_sales_tax.js",
+    "Sales Invoice":    "canada_business_compliance/public/js/ca_sales_tax.js",
+    "Purchase Order":   "canada_business_compliance/public/js/ca_sales_tax.js",
+    "Purchase Invoice": "canada_business_compliance/public/js/ca_sales_tax.js",
+    "Address":          "canada_business_compliance/public/js/ca_address.js",
 }
 
 doc_events = {
@@ -26,6 +28,12 @@ doc_events = {
     },
     "Sales Order": {
         "before_insert": "canada_business_compliance.utils.tax_resolver.auto_set_taxes",
+    },
+    "Purchase Invoice": {
+        "before_insert": "canada_business_compliance.utils.tax_resolver.auto_set_purchase_taxes",
+    },
+    "Purchase Order": {
+        "before_insert": "canada_business_compliance.utils.tax_resolver.auto_set_purchase_taxes",
     },
 }
 

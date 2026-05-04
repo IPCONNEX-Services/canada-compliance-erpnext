@@ -26,6 +26,11 @@
   "pst_bc_account",
   "pst_sk_account",
   "rst_mb_account",
+  "itc_accounts_section",
+  "gst_itc_account",
+  "hst_itc_account",
+  "itc_col_break",
+  "qst_itc_account",
   "registration_section",
   "gst_registration_number",
   "qst_registration_number",
@@ -36,6 +41,8 @@
   "apply_to_sales_order",
   "apply_to_quotation",
   "apply_to_sales_invoice",
+  "apply_to_purchase_order",
+  "apply_to_purchase_invoice",
   "tax_rules_section",
   "use_tax_rules"
  ],
@@ -179,6 +186,38 @@
    "description": "Account for Manitoba Retail Sales Tax (7%). Remitted to Manitoba Finance."
   },
   {
+   "collapsible": 1,
+   "depends_on": "eval:doc.collects_canada_sales_tax",
+   "fieldname": "itc_accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Purchase Tax Accounts (ITC)"
+  },
+  {
+   "fieldname": "gst_itc_account",
+   "fieldtype": "Link",
+   "label": "GST Recoverable Account",
+   "options": "Account",
+   "description": "Account for GST Input Tax Credits claimed on purchases. Typically 'GST Recoverable'."
+  },
+  {
+   "fieldname": "hst_itc_account",
+   "fieldtype": "Link",
+   "label": "HST Recoverable Account",
+   "options": "Account",
+   "description": "Account for HST Input Tax Credits claimed on purchases from HST provinces."
+  },
+  {
+   "fieldname": "itc_col_break",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qst_itc_account",
+   "fieldtype": "Link",
+   "label": "QST Recoverable Account",
+   "options": "Account",
+   "description": "Account for QST Input Tax Credits claimed on Quebec purchases."
+  },
+  {
    "depends_on": "eval:doc.collects_canada_sales_tax",
    "fieldname": "registration_section",
    "fieldtype": "Section Break",
@@ -242,6 +281,18 @@
    "fieldname": "apply_to_sales_invoice",
    "fieldtype": "Check",
    "label": "Sales Invoice"
+  },
+  {
+   "default": "1",
+   "fieldname": "apply_to_purchase_order",
+   "fieldtype": "Check",
+   "label": "Purchase Order"
+  },
+  {
+   "default": "1",
+   "fieldname": "apply_to_purchase_invoice",
+   "fieldtype": "Check",
+   "label": "Purchase Invoice"
   },
   {
    "depends_on": "eval:doc.collects_canada_sales_tax",

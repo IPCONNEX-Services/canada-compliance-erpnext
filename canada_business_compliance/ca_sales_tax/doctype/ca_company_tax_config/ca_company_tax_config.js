@@ -1,5 +1,6 @@
 var _CA_ACCOUNT_FIELDS = ["gst_account", "hst_account", "pst_account", "qst_account",
-                          "pst_bc_account", "pst_sk_account", "rst_mb_account"];
+                          "pst_bc_account", "pst_sk_account", "rst_mb_account",
+                          "gst_itc_account", "hst_itc_account", "qst_itc_account"];
 
 frappe.ui.form.on("CA Company Tax Config", {
     setup: function (frm) {
@@ -111,10 +112,12 @@ frappe.ui.form.on("CA Company Tax Config", {
                                     title: __("Done"),
                                     indicator: "green",
                                     message: __(
-                                        "Tax Templates: {0} created, {1} updated<br>"
-                                        + "Tax Rules: {2} created, {3} updated",
+                                        "<b>Sales</b> — Templates: {0} created, {1} updated | Rules: {2} created, {3} updated<br>"
+                                        + "<b>Purchase</b> — Templates: {4} created, {5} updated | Rules: {6} created, {7} updated",
                                         [m.templates_created, m.templates_updated,
-                                         m.rules_created, m.rules_updated]
+                                         m.rules_created, m.rules_updated,
+                                         m.purchase_templates_created, m.purchase_templates_updated,
+                                         m.purchase_rules_created, m.purchase_rules_updated]
                                     ),
                                 });
                             }

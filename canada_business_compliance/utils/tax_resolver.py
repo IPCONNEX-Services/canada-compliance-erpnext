@@ -92,6 +92,93 @@ def get_province_code(doc):
     return None
 
 
+# PST non-recoverable — BC/MB/SK purchases only get GST ITC
+PROVINCE_TO_PURCHASE_TEMPLATE = {
+    "AB": "CA GST Only",
+    "NT": "CA GST Only",
+    "NU": "CA GST Only",
+    "YT": "CA GST Only",
+    "ON": "CA HST 13%",
+    "NB": "CA HST 15%",
+    "NL": "CA HST 15%",
+    "NS": "CA HST 15%",
+    "PE": "CA HST 15%",
+    "BC": "CA GST Only",
+    "MB": "CA GST Only",
+    "SK": "CA GST Only",
+    "QC": "CA GST + QST",
+}
+
+
+def _get_supplier_name(doc):
+    return doc.get("supplier") or doc.get("party_name")
+
+
+def get_supplier_province_code(doc):
+    """Return 2-letter province code from supplier billing address, falling back to territory."""
+    address_name = doc.get("supplier_address") or doc.get("billing_address")
+    if address_name:
+        state = frappe.db.get_value("Address", address_name, "state") or ""
+        code = state.strip().upper()
+        if code in PROVINCE_TO_TEMPLATE_BASE:
+            return code
+
+    supplier = _get_supplier_name(doc)
+    territory = doc.get("territory") or (
+        frappe.db.get_value("Supplier", supplier, "territory") if supplier else None
+    )
+    if territory:
+        for code, name in PROVINCE_TERRITORY.items():
+            if name == territory:
+                return code
+
+    return None
+
+
+def auto_set_purchase_taxes(doc, method=None):
+    """Set taxes_and_charges from supplier province on before_insert. No-op if already set."""
+    if doc.get("taxes_and_charges"):
+        return
+    if not _get_supplier_name(doc):
+        return
+
+    config = _get_company_config_doc(doc.company)
+    if not config:
+        return
+    if config.is_small_supplier:
+        return
+
+    province = get_supplier_province_code(doc)
+    if not province:
+        return
+
+    base_name = PROVINCE_TO_PURCHASE_TEMPLATE.get(province)
+    if not base_name:
+        return
+
+    company_abbr = frappe.db.get_value("Company", doc.company, "abbr")
+    chosen = None
+    for candidate in [f"{base_name} - {company_abbr}", base_name]:
+        if frappe.db.exists("Purchase Taxes and Charges Template", {"name": candidate}):
+            chosen = candidate
+            break
+
+    if not chosen:
+        return
+
+    doc.taxes_and_charges = chosen
+    template = frappe.get_doc("Purchase Taxes and Charges Template", chosen)
+    doc.set("taxes", [])
+    for row in template.taxes:
+        doc.append("taxes", {
+            "charge_type": row.charge_type,
+            "account_head": row.account_head,
+            "description": row.description,
+            "rate": row.rate,
+            "included_in_print_rate": row.get("included_in_print_rate", 0),
+        })
+
+
 def auto_set_taxes(doc, method=None):
     """Set taxes_and_charges from province on before_insert. No-op if already set."""
     if doc.get("taxes_and_charges"):

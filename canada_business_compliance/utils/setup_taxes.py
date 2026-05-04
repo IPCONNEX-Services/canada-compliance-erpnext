@@ -13,6 +13,23 @@ PROVINCE_TO_TEMPLATE_ADVANCED = {
     "SK": "CA GST + SK PST 6%",
 }
 
+# PST is non-recoverable on purchases — BC/MB/SK buyers only claim GST ITC
+PROVINCE_TO_PURCHASE_TEMPLATE = {
+    "AB": "CA GST Only",
+    "NT": "CA GST Only",
+    "NU": "CA GST Only",
+    "YT": "CA GST Only",
+    "ON": "CA HST 13%",
+    "NB": "CA HST 15%",
+    "NL": "CA HST 15%",
+    "NS": "CA HST 15%",
+    "PE": "CA HST 15%",
+    "BC": "CA GST Only",
+    "MB": "CA GST Only",
+    "SK": "CA GST Only",
+    "QC": "CA GST + QST",
+}
+
 # GST, HST, QST accounts are the same in both modes
 _TAX_ACCOUNTS_COMMON = {
     "gst": ("GST Payable", "Tax"),
@@ -30,6 +47,13 @@ _TAX_ACCOUNTS_ADVANCED = {
     "pst_bc": ("BC PST Payable", "Tax"),
     "pst_sk": ("SK PST Payable", "Tax"),
     "rst_mb": ("MB RST Payable", "Tax"),
+}
+
+# ITC (recoverable) accounts for purchases — always create all three
+_TAX_ITC_ACCOUNTS = {
+    "gst_itc": ("GST Recoverable", "Tax"),
+    "hst_itc": ("HST Recoverable", "Tax"),
+    "qst_itc": ("QST Recoverable", "Tax"),
 }
 
 
@@ -91,6 +115,30 @@ def _template_rows(base_name, config):
         "CA GST + SK PST 6%": [
             {"charge_type": "On Net Total", "account_head": gst,    "description": "GST 5%",    "rate": 5.0},
             {"charge_type": "On Net Total", "account_head": pst_sk, "description": "SK PST 6%", "rate": 6.0},
+        ],
+    }
+    return definitions.get(base_name, [])
+
+
+def _template_rows_purchase(base_name, config):
+    """Return purchase tax row dicts using ITC (recoverable) accounts. PST omitted — non-recoverable."""
+    gst_itc = config.gst_itc_account
+    hst_itc = config.hst_itc_account
+    qst_itc = config.qst_itc_account
+
+    definitions = {
+        "CA GST Only": [
+            {"charge_type": "On Net Total", "account_head": gst_itc, "description": "GST ITC 5%", "rate": 5.0},
+        ],
+        "CA HST 13%": [
+            {"charge_type": "On Net Total", "account_head": hst_itc, "description": "HST ITC 13%", "rate": 13.0},
+        ],
+        "CA HST 15%": [
+            {"charge_type": "On Net Total", "account_head": hst_itc, "description": "HST ITC 15%", "rate": 15.0},
+        ],
+        "CA GST + QST": [
+            {"charge_type": "On Net Total", "account_head": gst_itc, "description": "GST ITC 5%", "rate": 5.0},
+            {"charge_type": "On Net Total", "account_head": qst_itc, "description": "QST ITC 9.975%", "rate": 9.975},
         ],
     }
     return definitions.get(base_name, [])
@@ -196,12 +244,79 @@ def setup_company_taxes(company):
             rule.insert(ignore_permissions=True)
             rule_created += 1
 
+    # --- Purchase Tax Templates and Rules ---
+    purchase_tpl_created = purchase_tpl_updated = purchase_rule_created = purchase_rule_updated = 0
+
+    if config.gst_itc_account or config.hst_itc_account:
+        unique_purchase_bases = set(PROVINCE_TO_PURCHASE_TEMPLATE.values())
+        all_purchase_tpl_names = [f"{base} - {abbr}" for base in unique_purchase_bases]
+        existing_purchase_tpl = set(frappe.get_all(
+            "Purchase Taxes and Charges Template",
+            filters={"name": ["in", all_purchase_tpl_names], "company": company},
+            pluck="name",
+        ))
+
+        existing_purchase_rules = {
+            r.billing_state: r.name
+            for r in frappe.get_all(
+                "Tax Rule",
+                filters={"tax_type": "Purchase", "company": company, "billing_country": "Canada"},
+                fields=["name", "billing_state"],
+            )
+        }
+
+        for base_name in unique_purchase_bases:
+            rows = _template_rows_purchase(base_name, config)
+            if any(not r["account_head"] for r in rows):
+                continue
+
+            tpl_name = f"{base_name} - {abbr}"
+            if tpl_name in existing_purchase_tpl:
+                doc = frappe.get_doc("Purchase Taxes and Charges Template", tpl_name)
+                doc.taxes = []
+                for row in rows:
+                    doc.append("taxes", row)
+                doc.company = company
+                doc.save(ignore_permissions=True)
+                purchase_tpl_updated += 1
+            else:
+                doc = frappe.new_doc("Purchase Taxes and Charges Template")
+                doc.title = tpl_name
+                doc.company = company
+                for row in rows:
+                    doc.append("taxes", row)
+                doc.insert(ignore_permissions=True)
+                purchase_tpl_created += 1
+
+        for province, base_name in PROVINCE_TO_PURCHASE_TEMPLATE.items():
+            tpl_name = f"{base_name} - {abbr}"
+            if not frappe.db.exists("Purchase Taxes and Charges Template", tpl_name):
+                continue
+
+            if province in existing_purchase_rules:
+                frappe.db.set_value("Tax Rule", existing_purchase_rules[province], "purchase_tax_template", tpl_name)
+                purchase_rule_updated += 1
+            else:
+                rule = frappe.new_doc("Tax Rule")
+                rule.tax_type = "Purchase"
+                rule.company = company
+                rule.billing_state = province
+                rule.billing_country = "Canada"
+                rule.purchase_tax_template = tpl_name
+                rule.priority = 10
+                rule.insert(ignore_permissions=True)
+                purchase_rule_created += 1
+
     return {
         "templates_created": tpl_created,
         "templates_updated": tpl_updated,
         "rules_created": rule_created,
         "rules_updated": rule_updated,
         "advanced_mode": advanced,
+        "purchase_templates_created": purchase_tpl_created,
+        "purchase_templates_updated": purchase_tpl_updated,
+        "purchase_rules_created": purchase_rule_created,
+        "purchase_rules_updated": purchase_rule_updated,
     }
 
 
@@ -265,27 +380,19 @@ def ensure_company_tax_accounts(company):
         fields=["name", "account_name"],
     )
     existing_names = {a.name for a in all_tax_accounts}
-    existing_account_names = [a.account_name for a in all_tax_accounts]
 
     result = {}
     created = []
     warnings = []
 
-    for key, (account_name, account_type) in tax_accounts.items():
-        if key not in accounts_to_create:
-            continue
-
+    def _create_account_if_missing(key, account_name, account_type):
         full_name = f"{account_name} - {abbr}"
         if full_name in existing_names:
             result[key] = full_name
-            continue
+            return
 
-        # Warn if a differently-named account with the same tax type already exists
         first_word = account_name.split()[0].lower()
-        similar = [n for n, an in zip(
-            [a.name for a in all_tax_accounts],
-            existing_account_names,
-        ) if first_word in an.lower()]
+        similar = [a.name for a in all_tax_accounts if first_word in a.account_name.lower()]
         if similar:
             warnings.append(
                 f"Creating <b>{full_name}</b> but found similar existing account(s): "
@@ -300,9 +407,17 @@ def ensure_company_tax_accounts(company):
         doc.insert(ignore_permissions=True)
         result[key] = doc.name
         created.append(account_name)
-        # Keep in-memory list current so later iterations in this loop see it
         all_tax_accounts.append(frappe._dict(name=doc.name, account_name=account_name))
-        existing_account_names.append(account_name)
+        existing_names.add(doc.name)
+
+    for key, (account_name, account_type) in tax_accounts.items():
+        if key not in accounts_to_create:
+            continue
+        _create_account_if_missing(key, account_name, account_type)
+
+    # ITC (recoverable) accounts for purchases — always create all three
+    for key, (account_name, account_type) in _TAX_ITC_ACCOUNTS.items():
+        _create_account_if_missing(key, account_name, account_type)
 
     if config:
         config.gst_account = result.get("gst") or config.gst_account
@@ -314,6 +429,9 @@ def ensure_company_tax_accounts(company):
             config.rst_mb_account = result.get("rst_mb") or config.rst_mb_account
         else:
             config.pst_account = result.get("pst") or config.pst_account
+        config.gst_itc_account = result.get("gst_itc") or config.gst_itc_account
+        config.hst_itc_account = result.get("hst_itc") or config.hst_itc_account
+        config.qst_itc_account = result.get("qst_itc") or config.qst_itc_account
         config.save(ignore_permissions=True)
 
     return {"accounts": result, "created": created, "warnings": warnings, "advanced_mode": advanced}
