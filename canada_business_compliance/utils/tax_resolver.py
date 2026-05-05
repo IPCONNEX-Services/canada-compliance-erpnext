@@ -124,9 +124,9 @@ def get_supplier_province_code(doc):
             return code
 
     supplier = _get_supplier_name(doc)
-    territory = doc.get("territory") or (
-        frappe.db.get_value("Supplier", supplier, "territory") if supplier else None
-    )
+    territory = doc.get("territory")
+    if not territory and supplier and frappe.get_meta("Supplier").has_field("territory"):
+        territory = frappe.db.get_value("Supplier", supplier, "territory")
     if territory:
         for code, name in PROVINCE_TERRITORY.items():
             if name == territory:
