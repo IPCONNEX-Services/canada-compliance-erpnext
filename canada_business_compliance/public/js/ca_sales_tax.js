@@ -20,6 +20,72 @@
         YT: "Yukon",
     };
 
+    // Bulletproof alias map — mirrors canada_business_compliance.utils.province.
+    const PROVINCE_ALIASES = {
+        "ab": "AB", "alberta": "AB", "alta": "AB", "alb": "AB",
+        "bc": "BC", "british columbia": "BC", "colombie britannique": "BC", "colombie b": "BC",
+        "mb": "MB", "manitoba": "MB", "man": "MB",
+        "nb": "NB", "new brunswick": "NB", "nouveau brunswick": "NB",
+        "nl": "NL", "nf": "NL", "nfld": "NL", "newfoundland": "NL",
+        "newfoundland and labrador": "NL", "newfoundland labrador": "NL",
+        "labrador": "NL", "terre neuve": "NL", "terre neuve et labrador": "NL",
+        "ns": "NS", "nova scotia": "NS", "nouvelle ecosse": "NS",
+        "nt": "NT", "nwt": "NT", "northwest territories": "NT",
+        "territoires du nord ouest": "NT",
+        "nu": "NU", "nunavut": "NU",
+        "on": "ON", "ont": "ON", "ontario": "ON",
+        "pe": "PE", "pei": "PE", "p e i": "PE",
+        "prince edward island": "PE", "ile du prince edouard": "PE",
+        "qc": "QC", "pq": "QC", "que": "QC", "qbc": "QC", "quebec": "QC",
+        "sk": "SK", "sask": "SK", "saskatchewan": "SK",
+        "yt": "YT", "yk": "YT", "yukon": "YT", "yukon territory": "YT",
+    };
+
+    const _ALIAS_KEYS_DESC = Object.keys(PROVINCE_ALIASES).sort(function (a, b) {
+        return b.length - a.length;
+    });
+
+    function _normalise_key(s) {
+        // Accent-strip (NFKD + drop combining marks), lowercase, punctuation → space, collapse whitespace
+        var stripped = s.normalize ? s.normalize("NFKD").replace(/[̀-ͯ]/g, "") : s;
+        var lowered = stripped.toLowerCase().trim();
+        var spaced = lowered.replace(/[.,\/\\_\-'"()]/g, " ");
+        return spaced.replace(/\s+/g, " ").trim();
+    }
+
+    function normalize_province(raw) {
+        if (!raw) return null;
+        var s = String(raw).trim();
+        if (!s) return null;
+
+        // Combined "CODE - Name" / "CODE-Name" / "CODE Name" — trust valid leading 2-letter code
+        var seps = [" - ", "-", " "];
+        for (var i = 0; i < seps.length; i++) {
+            var head = s.split(seps[i])[0].trim();
+            if (head.length === 2 && PROVINCE_TERRITORY[head.toUpperCase()]) {
+                return head.toUpperCase();
+            }
+        }
+
+        var key = _normalise_key(s);
+        if (!key) return null;
+
+        if (PROVINCE_ALIASES[key]) return PROVINCE_ALIASES[key];
+
+        if (key.length === 2 && PROVINCE_TERRITORY[key.toUpperCase()]) {
+            return key.toUpperCase();
+        }
+
+        for (var j = 0; j < _ALIAS_KEYS_DESC.length; j++) {
+            var alias = _ALIAS_KEYS_DESC[j];
+            if (key === alias || key.indexOf(alias + " ") === 0) {
+                return PROVINCE_ALIASES[alias];
+            }
+        }
+
+        return null;
+    }
+
     const PST_PROVINCES = new Set(["BC", "SK", "MB"]);
 
     // Cache is keyed per company — reset on refresh or company change
@@ -44,10 +110,7 @@
     }
 
     function territory_to_province(territory) {
-        for (var code in PROVINCE_TERRITORY) {
-            if (PROVINCE_TERRITORY[code] === territory) return code;
-        }
-        return null;
+        return normalize_province(territory);
     }
 
     function strip_tax_rows(frm, predicate) {
@@ -152,8 +215,9 @@
         if (!address_name) return;
 
         frappe.db.get_value("Address", address_name, "state").then(function (r) {
-            var state = ((r && r.message && r.message.state) || "").trim().toUpperCase();
-            var territory = PROVINCE_TERRITORY[state];
+            var state = (r && r.message && r.message.state) || "";
+            var code = normalize_province(state);
+            var territory = code && PROVINCE_TERRITORY[code];
             if (territory && territory !== frm.doc.territory) {
                 frm.set_value("territory", territory);
             }

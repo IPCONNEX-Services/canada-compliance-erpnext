@@ -1,20 +1,9 @@
 import frappe
 
-PROVINCE_TERRITORY = {
-    "AB": "Alberta",
-    "BC": "British Columbia",
-    "MB": "Manitoba",
-    "NB": "New Brunswick",
-    "NL": "Newfoundland and Labrador",
-    "NS": "Nova Scotia",
-    "NT": "Northwest Territories",
-    "NU": "Nunavut",
-    "ON": "Ontario",
-    "PE": "Prince Edward Island",
-    "QC": "Quebec",
-    "SK": "Saskatchewan",
-    "YT": "Yukon",
-}
+from canada_business_compliance.utils.province import (
+    PROVINCE_NAME as PROVINCE_TERRITORY,
+    normalize_province,
+)
 
 PROVINCE_TO_TEMPLATE_BASE = {
     "AB": "CA GST Only",
@@ -64,30 +53,33 @@ def _get_customer_name(doc):
     return doc.get("customer") or doc.get("party_name")
 
 
-def _province_code(province_str):
-    """Extract 2-letter code from 'AB - Alberta' or return 'AB' as-is."""
-    if not province_str:
+def _address_province(address_name):
+    """Read an Address.state field and normalise to a 2-letter code, or None."""
+    if not address_name:
         return None
-    return province_str.split(" - ")[0].strip().upper()
+    state = frappe.db.get_value("Address", address_name, "state") or ""
+    return normalize_province(state)
 
 
 def get_province_code(doc):
-    """Return 2-letter province code: billing address state first, customer territory as fallback."""
-    address_name = doc.get("customer_address")
-    if address_name:
-        state = frappe.db.get_value("Address", address_name, "state") or ""
-        code = state.strip().upper()
-        if code in PROVINCE_TO_TEMPLATE_BASE:
+    """Return 2-letter province code, trying shipping → billing → customer territory.
+
+    Accepts any state format (code, full English/French name, abbreviation) thanks
+    to normalize_province. Shipping wins over billing because Canadian place-of-supply
+    rules use the delivery location.
+    """
+    for field in ("shipping_address_name", "customer_address"):
+        code = _address_province(doc.get(field))
+        if code:
             return code
 
     customer = _get_customer_name(doc)
     territory = doc.get("territory") or (
         frappe.db.get_value("Customer", customer, "territory") if customer else None
     )
-    if territory:
-        for code, name in PROVINCE_TERRITORY.items():
-            if name == territory:
-                return code
+    code = normalize_province(territory)
+    if code:
+        return code
 
     return None
 
@@ -115,22 +107,19 @@ def _get_supplier_name(doc):
 
 
 def get_supplier_province_code(doc):
-    """Return 2-letter province code from supplier billing address, falling back to territory."""
-    address_name = doc.get("supplier_address") or doc.get("billing_address")
-    if address_name:
-        state = frappe.db.get_value("Address", address_name, "state") or ""
-        code = state.strip().upper()
-        if code in PROVINCE_TO_TEMPLATE_BASE:
+    """Return 2-letter province code, trying supplier_address → shipping_address → supplier territory."""
+    for field in ("supplier_address", "shipping_address", "billing_address"):
+        code = _address_province(doc.get(field))
+        if code:
             return code
 
     supplier = _get_supplier_name(doc)
     territory = doc.get("territory") or (
         frappe.db.get_value("Supplier", supplier, "territory") if supplier else None
     )
-    if territory:
-        for code, name in PROVINCE_TERRITORY.items():
-            if name == territory:
-                return code
+    code = normalize_province(territory)
+    if code:
+        return code
 
     return None
 
