@@ -26,7 +26,7 @@ A Frappe v16 / ERPNext app for Canadian business compliance — automatic sales 
 | MB — Manitoba | 5% | — | 7% RST | — | 12% |
 | NB — New Brunswick | — | 15% | — | — | 15% |
 | NL — Newfoundland | — | 15% | — | — | 15% |
-| NS — Nova Scotia | — | 15% | — | — | 15% |
+| NS — Nova Scotia | — | 14% | — | — | 14% |
 | NT — Northwest Territories | 5% | — | — | — | 5% |
 | NU — Nunavut | 5% | — | — | — | 5% |
 | ON — Ontario | — | 13% | — | — | 13% |

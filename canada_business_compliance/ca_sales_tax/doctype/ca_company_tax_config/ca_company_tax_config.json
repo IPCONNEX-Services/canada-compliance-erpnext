@@ -121,7 +121,7 @@
    "fieldtype": "Link",
    "label": "HST Account",
    "options": "Account",
-   "description": "Account for Harmonized Sales Tax. Used in NB (15%), NL (15%), NS (15%), ON (13%), PE (15%)."
+   "description": "Account for Harmonized Sales Tax. Used in NB (15%), NL (15%), NS (14%), ON (13%), PE (15%)."
   },
   {
    "fieldname": "col_break_1",

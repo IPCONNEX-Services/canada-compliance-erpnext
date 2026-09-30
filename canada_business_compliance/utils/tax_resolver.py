@@ -13,7 +13,7 @@ PROVINCE_TO_TEMPLATE_BASE = {
     "ON": "CA HST 13%",
     "NB": "CA HST 15%",
     "NL": "CA HST 15%",
-    "NS": "CA HST 15%",
+    "NS": "CA HST 14%",  # NS HST cut 15% -> 14% effective 2025-04-01
     "PE": "CA HST 15%",
     "BC": "CA GST + PST 7%",
     "MB": "CA GST + PST 7%",
@@ -93,7 +93,7 @@ PROVINCE_TO_PURCHASE_TEMPLATE = {
     "ON": "CA HST 13%",
     "NB": "CA HST 15%",
     "NL": "CA HST 15%",
-    "NS": "CA HST 15%",
+    "NS": "CA HST 14%",  # NS HST cut 15% -> 14% effective 2025-04-01
     "PE": "CA HST 15%",
     "BC": "CA GST Only",
     "MB": "CA GST Only",

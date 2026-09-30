@@ -9,7 +9,7 @@ _FALLBACK_RATES = {
     "MB": [{"description": "GST",  "rate": 5.0,    "account_head": ""}, {"description": "RST", "rate": 7.0,    "account_head": ""}],
     "NB": [{"description": "HST",  "rate": 15.0,   "account_head": ""}],
     "NL": [{"description": "HST",  "rate": 15.0,   "account_head": ""}],
-    "NS": [{"description": "HST",  "rate": 15.0,   "account_head": ""}],
+    "NS": [{"description": "HST",  "rate": 14.0,   "account_head": ""}],
     "NT": [{"description": "GST",  "rate": 5.0,    "account_head": ""}],
     "NU": [{"description": "GST",  "rate": 5.0,    "account_head": ""}],
     "ON": [{"description": "HST",  "rate": 13.0,   "account_head": ""}],

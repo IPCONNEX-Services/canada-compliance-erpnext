@@ -22,7 +22,7 @@ PROVINCE_TO_PURCHASE_TEMPLATE = {
     "ON": "CA HST 13%",
     "NB": "CA HST 15%",
     "NL": "CA HST 15%",
-    "NS": "CA HST 15%",
+    "NS": "CA HST 14%",  # NS HST cut 15% -> 14% effective 2025-04-01
     "PE": "CA HST 15%",
     "BC": "CA GST Only",
     "MB": "CA GST Only",
@@ -89,6 +89,9 @@ def _template_rows(base_name, config):
         "CA HST 13%": [
             {"charge_type": "On Net Total", "account_head": hst, "description": "HST 13%", "rate": 13.0},
         ],
+        "CA HST 14%": [
+            {"charge_type": "On Net Total", "account_head": hst, "description": "HST 14%", "rate": 14.0},
+        ],
         "CA HST 15%": [
             {"charge_type": "On Net Total", "account_head": hst, "description": "HST 15%", "rate": 15.0},
         ],
@@ -132,6 +135,9 @@ def _template_rows_purchase(base_name, config):
         ],
         "CA HST 13%": [
             {"charge_type": "On Net Total", "account_head": hst_itc, "description": "HST ITC 13%", "rate": 13.0},
+        ],
+        "CA HST 14%": [
+            {"charge_type": "On Net Total", "account_head": hst_itc, "description": "HST ITC 14%", "rate": 14.0},
         ],
         "CA HST 15%": [
             {"charge_type": "On Net Total", "account_head": hst_itc, "description": "HST ITC 15%", "rate": 15.0},

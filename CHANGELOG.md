@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.1 — 2026-09-29
+### Fixed
+- Nova Scotia HST is 14% (cut from 15% effective 2025-04-01). NS now maps to a new
+  `CA HST 14%` sales/purchase template; NB, NL, PE stay on `CA HST 15%`. Fallback rate for NS is 14.
+- Patch `v0_3_1.ns_hst_14` creates `CA HST 14% - <abbr>` from each company's `CA HST 15%`
+  template (same account head) and repoints NS Tax Rules. Idempotent; never touches submitted documents.
+
 ## v0.2.0 — 2026-04-19
 ### Added
 - Address fallback: billing address used for tax when no shipping address (services)
