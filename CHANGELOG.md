@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.3 — 2026-09-29
+### Removed
+- Deprecated **CA Tax Settings** single DocType (replaced by CA Company Tax Config since v0.3.0;
+  no code read it). Patch `v0_3_3.remove_ca_tax_settings` deletes the DocType and its
+  tabSingles rows, Custom Fields, Property Setters, Custom DocPerms and workspace links/shortcuts.
+- The same patch refreshes a stale `CA Tax Invoice` print format HTML (sites installed before 0.3.0
+  still called `frappe.get_single("CA Tax Settings")`; the fixed JSON never re-synced because its
+  `modified` was unchanged). Other print format fields (e.g. disabled) are kept.
+### Fixed
+- `v0_3_0.migrate_settings_to_company_config` ran before model sync, so on a pre-0.3 upgrade the
+  CA Company Tax Config table did not exist yet and the migration silently skipped. It now runs in
+  `[post_model_sync]` and reads the old values straight from tabSingles (works without the DocType).
+- `__version__` in `__init__.py` lagged `hooks.app_version`; both are 0.3.3.
+
 ## v0.3.2 — 2026-09-29
 ### Changed
 - Purchase tax template now follows the **place of supply** (where the goods are delivered),

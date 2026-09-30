@@ -1,8 +1,28 @@
 """
 Migrate the global CA Tax Settings singleton to a per-company CA Company Tax Config record.
-Safe to run on existing installs — skips if the config already exists for the default company.
+
+Runs post_model_sync (the CA Company Tax Config table must exist) and reads the old
+values straight from tabSingles, so it works after the CA Tax Settings DocType has been
+removed (v0.3.3). Skips if a config already exists for the default company.
 """
 import frappe
+
+OLD_DOCTYPE = "CA Tax Settings"
+
+_CHECK_FIELDS_DEFAULT_ON = (
+    "apply_to_sales_order",
+    "apply_to_quotation",
+    "apply_to_sales_invoice",
+    "use_tax_rules",
+)
+_TEXT_FIELDS = (
+    "gst_account",
+    "hst_account",
+    "pst_account",
+    "qst_account",
+    "gst_registration_number",
+    "qst_registration_number",
+)
 
 
 def execute():
@@ -13,47 +33,30 @@ def execute():
     if not company:
         return
 
-    existing = frappe.get_all("CA Company Tax Config", filters={"company": company}, limit=1)
-    if existing:
+    if frappe.get_all("CA Company Tax Config", filters={"company": company}, limit=1):
         return
 
-    if not frappe.db.exists("DocType", "CA Tax Settings"):
-        _create_default(company)
-        return
-
-    try:
-        old = frappe.get_single("CA Tax Settings")
-    except Exception:
-        _create_default(company)
-        return
+    old = _read_old_settings()
 
     config = frappe.new_doc("CA Company Tax Config")
     config.company = company
     config.enabled = 1
     config.collects_canada_sales_tax = 1
-    config.is_small_supplier = old.is_small_supplier or 0
-    config.gst_account = old.gst_account
-    config.hst_account = old.hst_account
-    config.pst_account = old.pst_account
-    config.qst_account = old.qst_account
-    config.gst_registration_number = old.gst_registration_number
-    config.qst_registration_number = old.qst_registration_number
-    config.apply_to_sales_order = old.apply_to_sales_order if old.apply_to_sales_order is not None else 1
-    config.apply_to_quotation = old.apply_to_quotation if old.apply_to_quotation is not None else 1
-    config.apply_to_sales_invoice = old.apply_to_sales_invoice if old.apply_to_sales_invoice is not None else 1
-    config.use_tax_rules = old.use_tax_rules if old.use_tax_rules is not None else 1
+    config.is_small_supplier = frappe.utils.cint(old.get("is_small_supplier"))
+    for field in _CHECK_FIELDS_DEFAULT_ON:
+        value = old.get(field)
+        config.set(field, 1 if value in (None, "") else frappe.utils.cint(value))
+    for field in _TEXT_FIELDS:
+        if old.get(field):
+            config.set(field, old[field])
     config.insert(ignore_permissions=True)
     frappe.db.commit()
 
 
-def _create_default(company):
-    config = frappe.new_doc("CA Company Tax Config")
-    config.company = company
-    config.enabled = 1
-    config.collects_canada_sales_tax = 1
-    config.apply_to_sales_order = 1
-    config.apply_to_quotation = 1
-    config.apply_to_sales_invoice = 1
-    config.use_tax_rules = 1
-    config.insert(ignore_permissions=True)
-    frappe.db.commit()
+def _read_old_settings():
+    """Raw CA Tax Settings values ({} when never saved or already removed)."""
+    rows = frappe.db.sql(
+        "SELECT field, value FROM `tabSingles` WHERE doctype = %s",
+        OLD_DOCTYPE,
+    )
+    return {field: value for field, value in rows or ()}

@@ -36,8 +36,8 @@ The two permission patches (`fix_company_config_permissions`, `set_company_confi
 
 ## Current state
 
-- **CA Tax Settings** (Single DocType) — still exists, now legacy/unused. All active tax logic reads from CA Company Tax Config. Can be deprecated or hidden in a future release.
-- **CA Company Tax Config** — fully working. Migration patch auto-creates a record for the default company from CA Tax Settings data on `bench migrate`. Additional companies are added manually via the list view.
+- **CA Tax Settings** (Single DocType) — removed in v0.3.3 (patch `v0_3_3.remove_ca_tax_settings`). All tax logic reads from CA Company Tax Config.
+- **CA Company Tax Config** — fully working. Migration patch (post_model_sync) auto-creates a record for the default company from the old CA Tax Settings tabSingles data on `bench migrate`. Additional companies are added manually via the list view.
 - **Tax resolver** (`utils/tax_resolver.py`) — reads from CA Company Tax Config only
 - **Setup taxes** (`utils/setup_taxes.py`) — reads from CA Company Tax Config only; triggered via "Generate Tax Templates & Rules" button on the config form
 
@@ -45,7 +45,6 @@ The two permission patches (`fix_company_config_permissions`, `set_company_confi
 
 ## Next steps / known gaps
 
-- **Deprecate CA Tax Settings** — it's no longer read by any active code. Consider hiding it from the module or marking it deprecated in a v0.4 release.
 - **Remove redundant patches** — `fix_company_config_permissions` and `set_company_config_perms_direct` can be cleaned up; they're in patches.txt and will run harmlessly but are noise.
 - **Test multi-company flow end-to-end** — create a second company, add a CA Company Tax Config for it, generate tax templates, create a Sales Invoice and verify correct tax is applied.
 - **Frappe Cloud marketplace listing** — icon is ready at `public/logo.png`. Still needs a marketplace description/README update if submitting to the marketplace.
@@ -63,5 +62,5 @@ The two permission patches (`fix_company_config_permissions`, `set_company_confi
 | `utils/territory.py` | Sets customer territory from address province |
 | `public/js/ca_sales_tax.js` | Client-side tax injection for Sales Order/Quotation/Invoice |
 | `ca_sales_tax/print_format/ca_tax_invoice/` | CA Tax Invoice print format |
-| `patches/v0_3_0/migrate_settings_to_company_config.py` | Migrates CA Tax Settings → CA Company Tax Config on first v0.3 install |
+| `patches/v0_3_0/migrate_settings_to_company_config.py` | Migrates old CA Tax Settings values (raw tabSingles) → CA Company Tax Config on upgrade |
 | `public/logo.png` | Marketplace icon (512×512) |
