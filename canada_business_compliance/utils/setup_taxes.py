@@ -223,7 +223,7 @@ def setup_company_taxes(company):
             tpl_updated += 1
         else:
             doc = frappe.new_doc("Sales Taxes and Charges Template")
-            doc.title = tpl_name
+            doc.title = base_name  # autoname appends " - {abbr}"
             doc.company = company
             for row in rows:
                 doc.append("taxes", row)
@@ -287,7 +287,7 @@ def setup_company_taxes(company):
                 purchase_tpl_updated += 1
             else:
                 doc = frappe.new_doc("Purchase Taxes and Charges Template")
-                doc.title = tpl_name
+                doc.title = base_name  # autoname appends " - {abbr}"
                 doc.company = company
                 for row in rows:
                     doc.append("taxes", row)
