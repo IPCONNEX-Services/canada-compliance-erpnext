@@ -313,6 +313,11 @@ def auto_set_purchase_taxes(doc, method=None):
             "description": row.description,
             "rate": row.rate,
             "included_in_print_rate": row.get("included_in_print_rate", 0),
+            # Mandatory on Purchase Taxes and Charges; child defaults are not applied on
+            # append, so a row without them fails insert with MandatoryError.
+            "category": row.get("category") or "Total",
+            "add_deduct_tax": row.get("add_deduct_tax") or "Add",
+            "cost_center": row.get("cost_center"),
         })
     doc.ca_tax_basis = basis[:CA_TAX_BASIS_MAX]
 

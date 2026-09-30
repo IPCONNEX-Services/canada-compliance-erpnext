@@ -168,6 +168,8 @@ def test_auto_set_ingram_to_montreal_gst_qst(frappe):
     assert doc.taxes_and_charges == "CA GST + QST - IPX"
     assert doc.ca_tax_basis == "Destination QC (ship to IPX-MTL)"
     assert len(doc.taxes) == 1
+    # Purchase tax rows must carry the mandatory category / add_deduct_tax
+    assert doc.taxes[0]["category"] == "Total" and doc.taxes[0]["add_deduct_tax"] == "Add"
 
 
 def test_auto_set_nexit_drop_ship_ontario_hst(frappe):

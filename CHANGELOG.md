@@ -12,6 +12,9 @@
 - Auto-set now also skips docs that already carry tax rows without a template (manual rows
   were previously replaced) and non-draft docs. Also hooked on Purchase Receipt.
 - `Supplier.territory` is read only when the field exists (standard ERPNext has none).
+- Purchase tax rows now carry `category` / `add_deduct_tax` / `cost_center` from the template;
+  before, any Purchase Order/Invoice whose template was auto-set failed insert with a
+  MandatoryError (masked until 0.3.1 because the purchase template names did not resolve).
 ### Added
 - Read-only `ca_tax_basis` field on Purchase Order / Receipt / Invoice records the basis,
   e.g. "Destination QC (company address …)" or "Supplier fallback ON". Created by patch
