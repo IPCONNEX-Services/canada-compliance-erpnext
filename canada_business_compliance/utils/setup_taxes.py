@@ -1,8 +1,8 @@
 import frappe
 
+from canada_business_compliance.utils.province import normalize_province as _province_code
 from canada_business_compliance.utils.tax_resolver import (
     PROVINCE_TO_TEMPLATE_BASE as PROVINCE_TO_TEMPLATE,
-    _province_code,
 )
 
 # Advanced mode overrides the three PST provinces with per-province templates
