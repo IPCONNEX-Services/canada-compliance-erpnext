@@ -4,7 +4,7 @@ app_publisher = "IPCONNEX"
 app_description = "Canadian business compliance for Frappe/ERPNext — sales tax, payroll, and more"
 app_email = "dev@ipconnex.com"
 app_license = "MIT"
-app_version = "0.3.1"
+app_version = "0.3.2"
 
 doctype_js = {
     "Sales Order":      "canada_business_compliance/public/js/ca_sales_tax.js",
@@ -35,7 +35,12 @@ doc_events = {
     "Purchase Order": {
         "before_insert": "canada_business_compliance.utils.tax_resolver.auto_set_purchase_taxes",
     },
+    "Purchase Receipt": {
+        "before_insert": "canada_business_compliance.utils.tax_resolver.auto_set_purchase_taxes",
+    },
 }
+
+after_install = "canada_business_compliance.utils.custom_fields.ensure_custom_fields"
 
 custom_fields = {
     "Customer": [

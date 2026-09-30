@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.3.2 — 2026-09-29
+### Changed
+- Purchase tax template now follows the **place of supply** (where the goods are delivered),
+  not the supplier's province. Order: (a) drop-ship — PO shipping address / linked Sales Order
+  address / customer address; (b) doc `shipping_address`; (c) company billing address on the doc,
+  then the company's default address; (d) fallback to the supplier's province (old behaviour)
+  only when no destination is known. A destination outside Canada sets no template.
+- Only suppliers that resolve to a Canadian province get a template (unchanged for foreign
+  suppliers); the destination only decides which Canadian template applies.
+- Auto-set now also skips docs that already carry tax rows without a template (manual rows
+  were previously replaced) and non-draft docs. Also hooked on Purchase Receipt.
+- `Supplier.territory` is read only when the field exists (standard ERPNext has none).
+### Added
+- Read-only `ca_tax_basis` field on Purchase Order / Receipt / Invoice records the basis,
+  e.g. "Destination QC (company address …)" or "Supplier fallback ON". Created by patch
+  `v0_3_2.add_ca_tax_basis_field` and on install (the `custom_fields` dict in hooks.py is not
+  synced by Frappe).
+
 ## v0.3.1 — 2026-09-29
 ### Fixed
 - Nova Scotia HST is 14% (cut from 15% effective 2025-04-01). NS now maps to a new
