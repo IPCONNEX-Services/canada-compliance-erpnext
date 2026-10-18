@@ -6,6 +6,7 @@ authors = [
 description = "Canadian business compliance for Frappe/ERPNext — sales tax, payroll, and more"
 requires-python = ">=3.10"
 readme = "README.md"
+license = { text = "MIT" }
 dynamic = ["version"]
 dependencies = []
 
