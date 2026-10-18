@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.4 — 2026-10-18
+### Added
+- **Canada Compliance** workspace (module JSON, synced on migrate) with a shortcut and link to
+  CA Company Tax Config, plus desktop icons (solid/subtle). No `fixtures` entry: the workspace
+  already ships as a module JSON, so a Workspace fixture would be redundant and make
+  `bench export-fixtures` write a duplicate.
+- Accounts Manager (full rights) and Accounts User (read / report / export) permissions on
+  CA Company Tax Config; the doctype `modified` is bumped so migrate applies them.
+- `LICENSE` (MIT) and the `license` field in `pyproject.toml`.
+- `.gitignore` (bytecode, build artefacts, `.DS_Store`).
+### Changed
+- Re-applies the changes that were running on production without being committed. The workspace
+  has no link to the removed CA Tax Settings doctype.
+
 ## v0.3.3 — 2026-09-29
 ### Removed
 - Deprecated **CA Tax Settings** single DocType (replaced by CA Company Tax Config since v0.3.0;

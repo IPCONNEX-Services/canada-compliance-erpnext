@@ -14,6 +14,7 @@ A Frappe v16 / ERPNext app for Canadian business compliance — automatic sales 
 - Small supplier mode (under $30,000 CAD annual revenue)
 - CA Tax Invoice print format with registration numbers in the footer
 - Auto-creates missing tax accounts in your Chart of Accounts
+- **Canada Compliance** workspace with a shortcut to CA Company Tax Config
 
 ---
 
