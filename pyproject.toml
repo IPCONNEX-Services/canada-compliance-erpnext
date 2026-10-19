@@ -3,7 +3,7 @@ name = "canada_business_compliance"
 authors = [
     { name = "IPCONNEX", email = "dev@ipconnex.com" }
 ]
-description = "Canadian business compliance for Frappe/ERPNext — sales tax, payroll, and more"
+description = "Canadian sales tax compliance (GST/HST/QST/PST) for Frappe/ERPNext"
 requires-python = ">=3.10"
 readme = "README.md"
 license = { text = "MIT" }

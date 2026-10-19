@@ -1,7 +1,7 @@
 app_name = "canada_business_compliance"
 app_title = "Canada Business Compliance"
 app_publisher = "IPCONNEX"
-app_description = "Canadian business compliance for Frappe/ERPNext — sales tax, payroll, and more"
+app_description = "Canadian sales tax compliance (GST/HST/QST/PST) for Frappe/ERPNext"
 app_email = "dev@ipconnex.com"
 app_license = "MIT"
 app_version = "0.3.4"
